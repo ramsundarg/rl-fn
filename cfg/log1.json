@@ -1,0 +1,43 @@
+{
+  "env": {
+    "name": "BSEnv",
+    "mu": 0.32,
+    "sigma": 0.8,
+    "r": 0.0,
+    "T": 2,
+    "dt": 0.5,
+    "V_0": 0.5,
+    "U_2" :"math.log"
+  },
+  "general_settings": {
+    "max_episodes": 2000,
+    "max_steps": 100,
+    "batch_size": 2048
+  },
+  "ddpg": {
+    "gamma": 1,
+    "tau": 0.01,
+    "buffer_len": 100000,
+    "q": {
+      "name": "q_pow_ut",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.5,
+        "s": 0.5
+      }
+    },
+    "a": {
+      "name": "a_log",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.5,
+        "s": 0.5
+      }
+    }
+  
+  },
+    "b" : 0.5
+
+}
+
+
