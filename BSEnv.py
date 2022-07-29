@@ -5,6 +5,7 @@ import numpy as np
 from gym import spaces
 import importlib
 
+from mlflow import log_metric, log_param, log_artifacts
 
 def wealth_update(r, mu, sigma, dt,  action, dW_t):
     return np.exp(

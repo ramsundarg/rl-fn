@@ -17,7 +17,7 @@ import json
 from ddpg_generic import DDPGAgent
 import numpy as np
 import importlib
-
+from mlflow import log_metric, log_param, log_artifact,tensorflow
 #from plotting.action_value_function_power_utility import plot_optimal_q_value_surface_pow_ut
 
 
@@ -51,11 +51,11 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise):
             state = next_state
 
     return episode,episode_rewards
-
+tensorflow.autolog() 
 cfg = {}
 with open("cfg/powut1.json","r") as jfile:
     cfg = json.load(jfile)
-
+log_artifact("cfg/powut1.json")
 
 env_lib = importlib.import_module('{}'.format(cfg['env']['name'])) 
 env  = getattr(env_lib, cfg['env']['name'])(cfg['env'])

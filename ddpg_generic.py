@@ -14,6 +14,7 @@ from sys import exit
 from buffer import BasicBuffer_a, BasicBuffer_b
 import random
 import json
+from mlflow import log_metric, log_param, log_artifacts
 # np.random.seed(0)
 # tf.random.set_seed(0)
 
@@ -78,6 +79,7 @@ class DDPGAgent:
           q_loss = tf.reduce_mean((qvals - q_target)**2)
           grads_q = tape.gradient(q_loss,self.qN.get_trainable_variables())
         self.q_mu_optimizer.apply_gradients(zip(grads_q, self.qN.get_trainable_variables()))
+        log_metric("Q_loss",q_loss.numpy())
         self.q_losses.append(q_loss.numpy())
         self.storage.append([x.numpy() for x in self.qN.get_trainable_variables()])
         
@@ -89,6 +91,8 @@ class DDPGAgent:
               mu_loss =  -tf.reduce_mean(Q_mu)
               grads_mu = tape2.gradient(mu_loss,self.aN.get_trainable_variables())
             self.mu_losses.append(mu_loss)
+            log_metric("A_loss",mu_loss.numpy())
+            log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0)).numpy())
             self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
             self.update_target_weights('a')
         else:
