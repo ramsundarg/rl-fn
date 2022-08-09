@@ -12,7 +12,6 @@ class A:
         self.variables['target'] =[self.m]
         self.cfg = cfg
         self.r = self.cfg['env']['r']
-        self.b = self.cfg['b']
         self.T = self.cfg['env']['T']
         self.dt = self.cfg['env']['dt']
         self.update_actor = True

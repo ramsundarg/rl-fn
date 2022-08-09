@@ -18,6 +18,7 @@ from ddpg_generic import DDPGAgent
 import numpy as np
 import importlib
 from mlflow import log_metric, log_param, log_artifact,tensorflow
+import mlflow
 #from plotting.action_value_function_power_utility import plot_optimal_q_value_surface_pow_ut
 
 
@@ -51,54 +52,60 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise):
             state = next_state
 
     return episode,episode_rewards
-tensorflow.autolog() 
 cfg = {}
-with open("cfg/powut1.json","r") as jfile:
+file_name ="cfg/log_parametric.json"
+with open(file_name,"r") as jfile:
     cfg = json.load(jfile)
-log_artifact("cfg/powut1.json")
+        
+with mlflow.start_run(run_name = cfg.get('name',"Default Run")):
+    tensorflow.autolog() 
 
-env_lib = importlib.import_module('{}'.format(cfg['env']['name'])) 
-env  = getattr(env_lib, cfg['env']['name'])(cfg['env'])
-
-env_cfg = cfg['env']
-mu, sigma, r, T, dt, V_0 = env_cfg['mu'],env_cfg['sigma'],env_cfg['r'],env_cfg['T'],env_cfg['dt'],env_cfg['V_0']
-setting = cfg['general_settings']
-max_episodes = setting['max_episodes']
-max_steps = setting['max_steps']
-batch_size = setting['batch_size']
-
-ddpg_settings = cfg['ddpg']
-gamma = ddpg_settings['gamma']
-tau = ddpg_settings['tau']
-buffer_maxlen = ddpg_settings['buffer_len']
-critic_lr = ddpg_settings['q']['lr']
-actor_lr = ddpg_settings['a']['lr']
-
-qN_lib = importlib.import_module('qN.{}'.format(cfg['ddpg']['q']['name'])) 
-qN  = getattr(qN_lib, 'Q')(cfg)
-
-aN_lib = importlib.import_module('aN.{}'.format(cfg['ddpg']['a']['name'])) 
-aN  = getattr(aN_lib, 'A')(cfg)
-
-agent = DDPGAgent(env, ddpg_settings,qN,aN)
-episodes,episode_rewards = trainer(env, agent, max_episodes, max_steps, batch_size, action_noise=0.01)
-
-wealths = np.linspace(0, 1, 20, dtype='float32')
-risky_asset_allocations = np.linspace(-1, 1, 41, dtype='float32')
-times = np.linspace(0, T, 11, dtype='float32')
-
-
-
-
-def plot(v,title,legends=()):
-    from matplotlib import pyplot as plt
-    lineObjects= plt.plot(v)
-    plt.title(title)
-    if(len(legends)>0):
-        plt.legend(iter(lineObjects), legends)
-    plt.show()
+    log_artifact(file_name)
     
- 
-plot(agent.storage,title = "variables",legends =("mu","sigma"))
-plot(agent.q_losses,title = "losses")
-plot(episode_rewards,title = "rewards")
+    env_lib = importlib.import_module('{}'.format(cfg['env']['name'])) 
+    env  = getattr(env_lib, cfg['env']['name'])(cfg['env'])
+    
+    env_cfg = cfg['env']
+    mu, sigma, r, T, dt, V_0 = env_cfg['mu'],env_cfg['sigma'],env_cfg['r'],env_cfg['T'],env_cfg['dt'],env_cfg['V_0']
+    setting = cfg['general_settings']
+    max_episodes = setting['max_episodes']
+    max_steps = setting['max_steps']
+    batch_size = setting['batch_size']
+    
+    ddpg_settings = cfg['ddpg']
+    gamma = ddpg_settings['gamma']
+    tau = ddpg_settings['tau']
+    buffer_maxlen = ddpg_settings['buffer_len']
+    critic_lr = ddpg_settings['q']['lr']
+    actor_lr = ddpg_settings['a']['lr']
+    
+    qN_lib = importlib.import_module('qN.{}'.format(cfg['ddpg']['q']['name'])) 
+    qN  = getattr(qN_lib, 'Q')(cfg)
+    
+    aN_lib = importlib.import_module('aN.{}'.format(cfg['ddpg']['a']['name'])) 
+    aN  = getattr(aN_lib, 'A')(cfg)
+    
+    agent = DDPGAgent(env, ddpg_settings,qN,aN)
+    episodes,episode_rewards = trainer(env, agent, max_episodes, max_steps, batch_size, action_noise=0.01)
+    
+    wealths = np.linspace(0, 1, 20, dtype='float32')
+    risky_asset_allocations = np.linspace(-1, 1, 41, dtype='float32')
+    times = np.linspace(0, T, 11, dtype='float32')
+    log_param("q_variables",qN.get_all_variables())
+    log_param("a_variables",aN.get_all_variables())
+    
+    
+    
+    def plot(v,title,legends=()):
+        from matplotlib import pyplot as plt
+        lineObjects= plt.plot(v)
+        plt.title(title)
+        if(len(legends)>0):
+            plt.legend(iter(lineObjects), legends)
+        plt.show()
+        
+     
+    plot(agent.storage,title = "variables",legends =("mu","sigma"))
+    plot(agent.q_losses,title = "losses")
+    plot(episode_rewards,title = "rewards")
+    mlflow.end_run()
