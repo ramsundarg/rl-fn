@@ -32,7 +32,7 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise):
     for episode in range(max_episodes):
         state = env.reset()
         episode_reward = 0
-
+        
         for step in range(max_steps):
             action = agent.get_action(state, action_noise)
             next_state, reward, done, _ = env.step(action)
@@ -50,10 +50,10 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise):
                 break
 
             state = next_state
-
+        action_noise = action_noise * cfg.get("action_noise_damp",1.0)
     return episode,episode_rewards
 cfg = {}
-file_name ="cfg/log_parametric.json"
+file_name ="cfg/log_parametric3.json"
 with open(file_name,"r") as jfile:
     cfg = json.load(jfile)
         

@@ -1,0 +1,40 @@
+{
+    "name" : "Parametric log utility function (discoverable constant action)",
+  "env": {
+    "name": "BSEnv",
+    "mu": 0.32,
+    "sigma": 0.8,
+    "r": 0.0,
+    "T": 2,
+    "dt": 0.5,
+    "V_0": 0.5,
+    "U_2" :"math.log"
+  },
+  "general_settings": {
+    "max_episodes": 10000,
+    "max_steps": 100,
+    "batch_size": 2048
+  },
+  "ddpg": {
+    "gamma": 1,
+    "tau": 0.01,
+    "buffer_len": 100000,
+    "q": {
+      "name": "q_log_utparametric",
+      "lr": 0.001,
+      "variables": [0.1,0.2,0.1,0.1]
+        
+    },
+    "a": {
+      "name": "a_pow_ut1",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.1
+      
+      }
+    }
+  }
+
+}
+
+
