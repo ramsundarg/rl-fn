@@ -1,17 +1,18 @@
 {
-    "name" : "Parametric log utility function (discoverable constant action)",
+    "name" : "Parametric log utility function (discoverable constant action) HyperTuning ",
   "env": {
     "name": "BSEnv",
-    "mu": 0.32,
-    "sigma": 0.8,
+    "mu": 0.045
+    "sigma": 0.3,
     "r": 0.0,
     "T": 1.0,
     "dt": 0.5,
     "V_0": 0.5,
     "U_2" :"math.log"
+
   },
   "general_settings": {
-    "max_episodes": 10000,
+    "max_episodes": 1500,
     "max_steps": 100,
     "batch_size": 2048
   },
@@ -35,7 +36,39 @@
       
       }
     }
-  }
+  },
+   "tune" :
+      {
+        "general_settings.max_episodes" :
+         {
+            "list" :[2000,10000,100000]
+         },
+          "env.dt" :
+          {
+              "list" : [0.5,0.01,0.001]
+          },
+          "env.V_0" :
+          {
+              "list" : [0.5,"np.random.uniform(0.5,1.5)"]
+          },
+          "general_settings.batch_size" :
+          {
+              "low" : 512,
+              "step" :512,
+              "high" : 2050,
+              "list" : ["episode","int(np.sqrt(episode)+1)"]
+              
+          },
+          "ddpg.action_noise_damp" :
+          {
+          "list" : [0.99,0.999]
+          }
+          
+        
+          
+          
+      }
+  
 
 }
 

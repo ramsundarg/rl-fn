@@ -11,7 +11,7 @@
     "U_2" :"utility_functions.power_utility"
   },
   "general_settings": {
-    "max_episodes": 1000,
+    "max_episodes": 5000,
     "max_steps": 100,
     "batch_size": 2048
   },

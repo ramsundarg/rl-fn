@@ -1,8 +1,5 @@
 import math
-
-import gym
 import numpy as np
-from gym import spaces
 import importlib
 
 from mlflow import log_metric, log_param, log_artifacts
@@ -49,14 +46,6 @@ class BSEnv:
         self.reset()
 
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
-        self.action_space = spaces.Box(low=-1, high=1,
-                                       shape=(1,), dtype=np.float32)
-
-        # Observations: t in [0,T]; V_t in [0, infinity)
-        self.observation_space = spaces.Box(low=np.array([0, 0]),
-                                            high=np.array([self.T, float("inf")]),
-                                            shape=(2,),
-                                            dtype=np.float32)
 
     def step(self, action):
         """Execute one time step within the environment
@@ -85,10 +74,10 @@ class BSEnv:
     def reset(self):
         """Reset the state of the environment to an initial state"""
         self.t = 0
-        if isinstance(self.V_0, tuple):
-            self.V_t = 0.5 #np.random.uniform(low=0, high=1)
+        if isinstance(self.V_0, str):
+            self.V_t = eval(self.V_0)
         else:
-            self.V_t = 0.5
+            self.V_t = self.V_0
 
         return self._get_obs()
 

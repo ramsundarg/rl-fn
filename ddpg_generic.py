@@ -24,10 +24,8 @@ class DDPGAgent:
     def __init__(self, env, ddpg_settings,qN,aN):
         
         self.env = env
-        self.obs_dim = env.observation_space.shape[0]
-        self.action_dim = env.action_space.shape[0]
-        self.action_max = env.action_space.high[0]
-        # self.action_max = 1
+        self.obs_dim = 2
+        self.action_dim = 1
         
         # hyperparameters
         self.gamma = ddpg_settings['gamma']
@@ -76,11 +74,10 @@ class DDPGAgent:
           A2 =  self.aN.mu(X2,'target')
           q_target = R + tf.reshape(self.gamma  * self.qN.q_mu([X2,A2],'target'),[-1,1])
           qvals = self.qN.q_mu([X,A]) 
-          q_loss = tf.reduce_mean((qvals - q_target)**2)
-          grads_q = tape.gradient(q_loss,self.qN.get_trainable_variables())
+          self.q_loss = tf.reduce_mean((qvals - q_target)**2)
+          grads_q = tape.gradient(self.q_loss,self.qN.get_trainable_variables())
         self.q_mu_optimizer.apply_gradients(zip(grads_q, self.qN.get_trainable_variables()))
-        log_metric("Q_loss",q_loss.numpy())
-        self.q_losses.append(q_loss.numpy())
+        
         self.storage.append([x.numpy() for x in self.qN.get_trainable_variables()])
         
 
@@ -88,11 +85,9 @@ class DDPGAgent:
             with tf.GradientTape() as tape2:
               A_mu =  self.aN.mu(X)
               Q_mu = self.qN.q_mu([X,A_mu],'actual')
-              mu_loss =  -tf.reduce_mean(Q_mu)
-              grads_mu = tape2.gradient(mu_loss,self.aN.get_trainable_variables())
-            self.mu_losses.append(mu_loss)
-            log_metric("A_loss",mu_loss.numpy())
-            log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0)).numpy(),'target')
+              self.mu_loss =  -tf.reduce_mean(Q_mu)
+              grads_mu = tape2.gradient(self.mu_loss,self.aN.get_trainable_variables())
+            #self.mu_losses.append(self.mu_loss)
             self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
             self.update_target_weights('a')
         else:
@@ -102,4 +97,14 @@ class DDPGAgent:
         
         self.update_target_weights('q')
       
+    def log_metrics(self,c):
+        log_metric("Q_loss",self.q_loss.numpy(),c)
+        self.q_losses.append(self.q_loss.numpy())
+        if self.aN.update_actor:
+            log_metric("A_loss",self.mu_loss.numpy(),c)
+            self.mu_losses.append(self.mu_loss)
+        log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0),'target').numpy(),c)
+        
+        #
+
 
