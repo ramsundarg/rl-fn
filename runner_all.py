@@ -31,7 +31,7 @@ def flatten_dict(d: MutableMapping, sep: str= '.') -> MutableMapping:
 
 
 
-def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise,adamp=1.0):
+def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise,adamp,bsize_increase="0"):
     episode_rewards = []
     c =0 
     start_update = False
@@ -39,6 +39,11 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise,adamp=
         state = env.reset()
         episode_reward = 0
         bsize =0
+        if isinstance(batch_size,str):
+            bsize = eval(batch_size)
+        else:
+            bsize = batch_size
+        i = 1
         for step in range(max_steps):
             c= c+1
             action = agent.get_action(state, action_noise)
@@ -47,12 +52,11 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise,adamp=
             agent.replay_buffer.push(state, action, reward, next_state, d_store)
             episode_reward += reward
             
-            if isinstance(batch_size,str):
-                bsize = eval(batch_size)
-            else:
-                bsize = batch_size
+
             if agent.replay_buffer.size > bsize:
                 agent.update(bsize)
+                bsize= bsize+eval(bsize_increase)
+                i = i+1
                 start_update = True
 
             if done or step == max_steps - 1:
@@ -64,13 +68,14 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise,adamp=
                 break
             
             state = next_state
+            action_noise = action_noise *adamp
             
-        action_noise = action_noise *adamp
+        
     if start_update:
         agent.log_metrics(c)
     return episode,episode_rewards
 cfg = {}
-file_name ="cfg/powut1.json"
+file_name ="cfg/log_parametric4.json"
 with open(file_name,"r") as jfile:
     cfg = json.load(jfile)
 d = flatten_dict(cfg)
@@ -114,7 +119,7 @@ def run_experiment(cfg):
         aN  = getattr(aN_lib, 'A')(cfg)
         
         agent = DDPGAgent(env, ddpg_settings,qN,aN)
-        episodes,episode_rewards = trainer(env, agent, max_episodes, max_steps, batch_size, action_noise=0.01,adamp=1.0)
+        episodes,episode_rewards = trainer(env, agent, max_episodes, max_steps, batch_size, 0.01,adamp,setting.get("batch_size_increase","i"))
         
         #wealths = np.linspace(0, 1, 20, dtype='float32')
         #risky_asset_allocations = np.linspace(-1, 1, 41, dtype='float32')

@@ -1,4 +1,6 @@
 import math
+import gym
+from gym import spaces
 import numpy as np
 import importlib
 
@@ -44,7 +46,7 @@ class BSEnv:
         
         #self.U_2 = env.get('U_2',math.log)
         self.reset()
-
+ 
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
 
     def step(self, action):

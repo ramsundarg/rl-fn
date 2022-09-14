@@ -14,7 +14,8 @@
   "general_settings": {
     "max_episodes": 1500,
     "max_steps": 100,
-    "batch_size": 2048
+    "batch_size": 2048,
+     "batch_size_increase":"i"
   },
   "ddpg": {
     
@@ -22,6 +23,7 @@
     "tau": 0.01,
     "buffer_len": 100000,
     "action_noise_damp" :1.0,
+    
     "q": {
       "name": "q_log_utparametric",
       "lr": 0.001,
@@ -41,11 +43,11 @@
       {
         "general_settings.max_episodes" :
          {
-            "list" :[2000,10000,100000]
+            "list" :[5000,10000,100000]
          },
           "env.dt" :
           {
-              "list" : [0.5,0.01,0.001]
+              "list" : [0.2,0.01,0.001]
           },
           "env.V_0" :
           {
@@ -56,12 +58,12 @@
               "low" : 512,
               "step" :512,
               "high" : 2050,
-              "list" : ["episode","int(np.sqrt(episode)+1)"]
               
-          },
-          "ddpg.action_noise_damp" :
+          }
+          "general_settings.batch_size_increase" :
           {
-          "list" : [0.99,0.999]
+              "list" : ["i","np.sqrt(i)"]
+
           }
           
         

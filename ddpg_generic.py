@@ -26,6 +26,7 @@ class DDPGAgent:
         self.env = env
         self.obs_dim = 2
         self.action_dim = 1
+
         
         # hyperparameters
         self.gamma = ddpg_settings['gamma']
