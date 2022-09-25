@@ -3,8 +3,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def power_utility(x):
-    b = 0.5
+def power_utility(x,b):
     return tf.pow(x, b) / b
 
 

@@ -1,13 +1,14 @@
 {
   "env": {
     "name": "BSEnv",
-    "mu": 0.16,
-    "sigma": 0.8,
+    "mu": 0.09,
+    "sigma": 0.3,
     "r": 0.0,
     "T": 2,
     "dt": 0.5,
     "V_0": 0.5,
-    "U_2" :"utility_functions.power_utility"
+    "U_2" :"utility_functions.power_utility",
+    "b": 1.0
   },
   "general_settings": {
     "max_episodes": 2000,
@@ -34,8 +35,8 @@
         "s": 0.1
       }
     }
-  },
-  "b": 0.5
+  }
+  
 
 
 

@@ -60,8 +60,8 @@ class DDPGAgent:
     def get_action(self, s, noise_scale):
         
         a = self.aN.mu(np.expand_dims(s, axis=0),'actual')
-        a += noise_scale * np.random.randn(self.action_dim)
-        return np.clip(a, -100, 100)
+        a += (noise_scale * np.random.randn(self.action_dim))
+        return a #np.clip(a, -100, 100)
 
     def update(self, batch_size):
         X,A,R,X2,D = self.replay_buffer.sample(batch_size)

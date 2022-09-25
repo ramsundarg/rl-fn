@@ -3,6 +3,7 @@ import gym
 from gym import spaces
 import numpy as np
 import importlib
+import tensorflow as tf
 
 from mlflow import log_metric, log_param, log_artifacts
 
@@ -20,7 +21,8 @@ class BSEnv:
 
     At the end of the investment horizon the reward is equal to U(V(T)), else zero.
     """
-
+    def power_utility(self,x):
+        return tf.pow(x, self.env['b']) / self.env['b']
 
     def __init__(self, env):
         """
@@ -34,15 +36,19 @@ class BSEnv:
         """
 
         super().__init__()
+        self.env = env
         self.mu = env['mu']
         self.sigma = env['sigma']
         self.r = env['r']
         self.T = env['T']
         self.dt = env['dt']
         self.V_0 = env['V_0']
-        p, m = env.get('U_2','math.log').rsplit('.', 1)
-        mod = importlib.import_module(p)
-        self.U_2 = getattr(mod, m)
+        uf = env.get('U_2','math.log')
+        if uf == 'math.log':
+            self.U_2 = math.log
+        else:
+            self.U_2 = self.power_utility
+        
         
         #self.U_2 = env.get('U_2',math.log)
         self.reset()

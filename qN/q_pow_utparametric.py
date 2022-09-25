@@ -11,7 +11,7 @@ class Q:
         self.variables['actual'] = [tf.Variable(self.v[0],dtype="float32"),tf.Variable(self.v[1],dtype="float32"),tf.Variable(self.v[2],dtype="float32"),tf.Variable(self.v[3],dtype="float32")]
         self.variables['target'] =[self.v[0],self.v[1],self.v[2],self.v[3]]
         self.cfg = cfg
-        self.b = cfg['b']
+        self.b = cfg['env']['b']
         self.T = self.cfg['env']['T']
         self.dt = self.cfg['env']['dt']
         

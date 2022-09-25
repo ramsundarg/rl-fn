@@ -1,77 +1,105 @@
 {
-    "name" : "Parametric log utility function (discoverable constant action) HyperTuning ",
+  "name": "Parametric log utility function (discoverable constant action) HyperTuning ",
   "env": {
     "name": "BSEnv",
-    "mu": 0.045
+    "mu": 0.045,
     "sigma": 0.3,
     "r": 0.0,
     "T": 1.0,
     "dt": 0.5,
     "V_0": 0.5,
-    "U_2" :"math.log"
-
+    "U_2": "math.log"
   },
   "general_settings": {
     "max_episodes": 1500,
     "max_steps": 100,
     "batch_size": 2048,
-     "batch_size_increase":"i"
+    "batch_size_increase": "i"
   },
   "ddpg": {
-    
     "gamma": 1,
     "tau": 0.01,
     "buffer_len": 100000,
-    "action_noise_damp" :1.0,
-    
+    "action_noise_damp": 1.0,
     "q": {
       "name": "q_log_utparametric",
       "lr": 0.001,
-      "variables": [0.1,0.2,0.1,0.1]
-        
+      "variables": [
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ]
     },
     "a": {
       "name": "a_pow_ut1",
       "lr": 0.001,
       "variables": {
         "m": 0.1
-      
       }
     }
   },
-   "tune" :
+  "tune": {
+    "general_settings.max_episodes": {
+      "list": [
+        500
+      ]
+    },
+    "env.dt": {
+      "list": [
+        0.2,
+        0.01
+      ]
+    },
+    "group": [
       {
-        "general_settings.max_episodes" :
-         {
-            "list" :[5000,10000,100000]
-         },
-          "env.dt" :
-          {
-              "list" : [0.2,0.01,0.001]
-          },
-          "env.V_0" :
-          {
-              "list" : [0.5,"np.random.uniform(0.5,1.5)"]
-          },
-          "general_settings.batch_size" :
-          {
-              "low" : 512,
-              "step" :512,
-              "high" : 2050,
-              
-          }
-          "general_settings.batch_size_increase" :
-          {
-              "list" : ["i","np.sqrt(i)"]
-
-          }
-          
-        
-          
-          
+        "ddpg.q": {
+          "list": [
+            {
+              "name": "q_log_utparametric",
+              "lr": 0.001,
+              "variables": [
+                0.1,
+                0.2,
+                0.1,
+                0.1
+              ]
+            }
+          ]
+        },
+        "env.mu": {
+          "list": [
+            0.045
+          ]
+        }
+      },
+      {
+        "ddpg.q": {
+          "list": [
+            {
+              "name": "q_pow_utparametric",
+              "lr": 0.001,
+              "variables": [
+                0.1,
+                0.2,
+                0.1,
+                0.1
+              ]
+            }
+          ]
+        },
+        "env.mu": {
+          "list": [
+            0.09
+          ]
+        },
+        "env.b": {
+          "list": [
+            -1,
+            -0.9
+          ]
+        }
       }
-  
-
+    ]
+  }
 }
-
-
