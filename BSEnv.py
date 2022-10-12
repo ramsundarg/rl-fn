@@ -7,6 +7,7 @@ import importlib
 
 from mlflow import log_metric, log_param, log_artifacts
 
+
 def wealth_update(r, mu, sigma, dt,  action, dW_t):
     return np.exp(
         (r + action * (mu - r) - 0.5 * (action ** 2) * (sigma ** 2)) * dt

@@ -92,7 +92,7 @@ class DDPGAgent:
               grads_mu = tape2.gradient(mu_loss,self.aN.get_trainable_variables())
             self.mu_losses.append(mu_loss)
             log_metric("A_loss",mu_loss.numpy())
-            log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0)).numpy(),'target')
+            log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0),'target').numpy())
             self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
             self.update_target_weights('a')
         else:

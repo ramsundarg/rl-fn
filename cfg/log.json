@@ -1,8 +1,8 @@
 {
   "env": {
     "name": "BSEnv",
-    "mu": 0.32,
-    "sigma": 0.8,
+    "mu": 0.045,
+    "sigma": 0.3,
     "r": 0.0,
     "T": 2,
     "dt": 0.5,
@@ -10,7 +10,7 @@
     "U_2" :"math.log"
   },
   "general_settings": {
-    "max_episodes": 2000,
+    "max_episodes": 4000,
     "max_steps": 100,
     "batch_size": 2048
   },
