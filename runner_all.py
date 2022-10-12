@@ -53,7 +53,7 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise):
         action_noise = action_noise * cfg.get("action_noise_damp",1.0)
     return episode,episode_rewards
 cfg = {}
-file_name ="cfg/log_parametric3.json"
+file_name ="cfg/temp.json"
 with open(file_name,"r") as jfile:
     cfg = json.load(jfile)
         

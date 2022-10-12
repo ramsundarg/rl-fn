@@ -1,9 +1,9 @@
 import math
-
 import gym
-import numpy as np
 from gym import spaces
+import numpy as np
 import importlib
+import tensorflow as tf
 
 from mlflow import log_metric, log_param, log_artifacts
 
@@ -21,7 +21,8 @@ class BSEnv:
 
     At the end of the investment horizon the reward is equal to U(V(T)), else zero.
     """
-
+    def power_utility(self,x):
+        return tf.pow(x, self.env['b']) / self.env['b']
 
     def __init__(self, env):
         """
@@ -35,28 +36,24 @@ class BSEnv:
         """
 
         super().__init__()
+        self.env = env
         self.mu = env['mu']
         self.sigma = env['sigma']
         self.r = env['r']
         self.T = env['T']
         self.dt = env['dt']
         self.V_0 = env['V_0']
-        p, m = env.get('U_2','math.log').rsplit('.', 1)
-        mod = importlib.import_module(p)
-        self.U_2 = getattr(mod, m)
+        uf = env.get('U_2','math.log')
+        if uf == 'math.log':
+            self.U_2 = math.log
+        else:
+            self.U_2 = self.power_utility
+        
         
         #self.U_2 = env.get('U_2',math.log)
         self.reset()
-
+ 
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
-        self.action_space = spaces.Box(low=-1, high=1,
-                                       shape=(1,), dtype=np.float32)
-
-        # Observations: t in [0,T]; V_t in [0, infinity)
-        self.observation_space = spaces.Box(low=np.array([0, 0]),
-                                            high=np.array([self.T, float("inf")]),
-                                            shape=(2,),
-                                            dtype=np.float32)
 
     def step(self, action):
         """Execute one time step within the environment
@@ -85,10 +82,10 @@ class BSEnv:
     def reset(self):
         """Reset the state of the environment to an initial state"""
         self.t = 0
-        if isinstance(self.V_0, tuple):
-            self.V_t = 0.5 #np.random.uniform(low=0, high=1)
+        if isinstance(self.V_0, str):
+            self.V_t = eval(self.V_0)
         else:
-            self.V_t = 0.5
+            self.V_t = self.V_0
 
         return self._get_obs()
 
