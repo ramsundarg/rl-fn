@@ -47,20 +47,7 @@
         100000
       ]
     },
-    "env.dt": {
-      "list": [
-        0.2,
-        0.01,
-        0.001
-      ]
-    },
-    "env.V_0": {
-      "list": [
-        0.5,
-        "np.random.uniform(0.5,1.5)"
-      ]
-    },
-    "general_settings.batch_size": {
+      "general_settings.batch_size": {
       "low": 512,
       "step": 512,
       "high": 2050
@@ -75,21 +62,7 @@
       {
         "ddpg.q": {
           "list": [
-            {
-              "name": "q_log_utparametric",
-              "lr": 0.001,
-              "variables": [
-                0.1,
-                0.2,
-                0.1,
-                0.1
-              ]
-            }
-          ]
-        },
-        "env.mu": {
-          "list": [
-            0.045
+            {  "name": "q_log_utparametric" }           
           ]
         },
         "env.U_2": {

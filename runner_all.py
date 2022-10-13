@@ -82,7 +82,7 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise, adamp
 
 def run_experiment(cfg):
 
-    with mlflow.start_run(run_name=cfg.get('name', "Default Run")):
+    with mlflow.start_run(run_name=cfg.get('name', "Default Run"),experiment_id=experiment.experiment_id):
         tensorflow.autolog()
         d = flatten_dict(cfg)
         for k, v in d.items():
@@ -178,14 +178,18 @@ def hypertune(level, idx, hypertune_items):
                 keys =d.split('.')
                 c = cfg_copy
                 co = cfg
-                for key in keys:
+                update_key = True
+                for key in keys[0:-1]:
                     if co.get(key, None) == None:
                         del c[key] 
+                        update_key = False
                         break
                     if c.get(key, None) == None:
                         c[key] = []
                     co =co[key]
                     c= c[key]
+                if update_key:
+                    c[keys[-1]]= co[keys[-1]]
                 
         return
     keys = (list(hypertune_items)[idx]).split('.')
@@ -216,11 +220,13 @@ def hypertune(level, idx, hypertune_items):
 
 cfg = {}
 
-file_name = "cfg/parametric_tune1.json"
+file_name = "cfg/temp4.json"
 with open(file_name, "r") as jfile:
     cfg = json.load(jfile)
 
 cfg_copy = copy.deepcopy(cfg)
+mlflow.set_experiment(cfg["name"])
+experiment = mlflow.get_experiment_by_name(cfg["name"])
 hypertune(0, 0, cfg_copy.get('tune', []))
 
 
