@@ -61,7 +61,7 @@ class DDPGAgent:
         
         a = self.aN.mu(np.expand_dims(s, axis=0),'actual')
         a += (noise_scale * np.random.randn(self.action_dim))
-        return a #np.clip(a, -100, 100)
+        return np.clip(a, -1, 1)
 
     def update(self, batch_size):
         X,A,R,X2,D = self.replay_buffer.sample(batch_size)
@@ -77,7 +77,7 @@ class DDPGAgent:
           qvals = self.qN.q_mu([X,A]) 
           self.q_loss = tf.reduce_mean((qvals - q_target)**2)
           grads_q = tape.gradient(self.q_loss,self.qN.get_trainable_variables())
-        self.q_mu_optimizer.apply_gradients(zip(grads_q, self.qN.get_trainable_variables()))
+          self.q_mu_optimizer.apply_gradients(zip(grads_q, self.qN.get_trainable_variables()))
         
         self.storage.append([x.numpy() for x in self.qN.get_trainable_variables()])
         
@@ -89,8 +89,8 @@ class DDPGAgent:
               self.mu_loss =  -tf.reduce_mean(Q_mu)
               grads_mu = tape2.gradient(self.mu_loss,self.aN.get_trainable_variables())
             #self.mu_losses.append(self.mu_loss)
-            self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
-            self.update_target_weights('a')
+              self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
+              self.update_target_weights('a')
         else:
             self.aN.custom_update(self)
         
