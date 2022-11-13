@@ -83,7 +83,7 @@ def trainer(env, agent, max_episodes, max_steps, batch_size, action_noise, adamp
 def run_experiment(cfg):
 
     with mlflow.start_run(run_name=cfg.get('name', "Default Run"),experiment_id=experiment.experiment_id):
-        tensorflow.autolog()
+        #tensorflow.autolog()
         d = flatten_dict(cfg)
         for k, v in d.items():
             if isinstance(v, str) == False and isinstance(v, list) == False:

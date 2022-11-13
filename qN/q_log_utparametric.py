@@ -16,14 +16,14 @@ class Q:
         
         
     def q_mu(self,arr,network='actual'):
-        t = tf.reshape(np.array(arr[0])[:,0],[-1,1])
-        V = tf.reshape(np.array(arr[0])[:,1],[-1,1])
-        a = tf.cast(tf.reshape(arr[1],[-1,1]),tf.float32)
+        t = tf.cast(tf.reshape(arr[0][:,0],[-1,1]),tf.float32)
+        V = tf.cast(tf.reshape(arr[0][:,1],[-1,1]),tf.float32)
+        a =tf.cast( tf.reshape(arr[1],[-1,1]),tf.float32)
         T = self.T
         dt = self.dt
         v = self.variables[network]
         t_i_plus_1 = T - t - dt
-        val = tf.cast(tf.math.log(V) + v[3]*t_i_plus_1+dt*(v[0]+v[1]*a+v[2]*(a**2)),tf.float32) 
+        val = tf.math.log(V) + v[3]*t_i_plus_1+dt*(v[0]+v[1]*a+v[2]*(a**2))
         return tf.where(t<T,val,0)
 
     def get_all_variables(self):

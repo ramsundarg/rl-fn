@@ -18,12 +18,9 @@ class A:
         
         
     def mu(self,X,network= 'actual'):
-        t = tf.reshape(np.array(X)[:,0],[-1,1])
-        V = tf.reshape(np.array(X)[:,1],[-1,1])
         m = self.variables[network][0]
         #s = self.variables[network][1]
-        val = m #(m-self.r)/(s**2*(1-self.b))
-        a = tf.where(X[:,0]< self.T,val,0)
+        a = tf.where(X[:,0]< self.T,m,0)
         return a
         
     def custom_update(self,ddpg_agent):

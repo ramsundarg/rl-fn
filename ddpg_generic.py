@@ -47,12 +47,10 @@ class DDPGAgent:
         
 
  
-    def update_target_weights(self,network='q'):
-        t,a=None,None
-        if network == 'q':
-            t,a = self.qN.get_all_variables()
-        else:
-            t,a = self.aN.get_all_variables()
+    def update_target_weights(self,N):
+        if hasattr(N,'update_weight'):
+            return N.update_weight()
+        t,a = N.get_all_variables()
         for i in range(len(t)):
             t[i] =self.tau*a[i] + (1-self.tau)*t[i]
        
@@ -69,11 +67,12 @@ class DDPGAgent:
         A =  tf.convert_to_tensor(A)
         R =  tf.convert_to_tensor(R)
         X2 =  tf.convert_to_tensor(X2)
+        D = tf.convert_to_tensor(D.reshape([-1,1]))
 
         # Updating  Critic
         with tf.GradientTape() as tape:
           A2 =  self.aN.mu(X2,'target')
-          q_target = R + tf.reshape(self.gamma  * self.qN.q_mu([X2,A2],'target'),[-1,1])
+          q_target = R + tf.reshape(self.gamma  * (1-D)*self.qN.q_mu([X2,A2],'target'),[-1,1])
           qvals = self.qN.q_mu([X,A]) 
           self.q_loss = tf.reduce_mean((qvals - q_target)**2)
           grads_q = tape.gradient(self.q_loss,self.qN.get_trainable_variables())
@@ -84,19 +83,19 @@ class DDPGAgent:
 
         if self.aN.update_actor:
             with tf.GradientTape() as tape2:
-              A_mu =  self.aN.mu(X)
+              A_mu =  self.aN.mu(X,'actual')
               Q_mu = self.qN.q_mu([X,A_mu],'actual')
               self.mu_loss =  -tf.reduce_mean(Q_mu)
               grads_mu = tape2.gradient(self.mu_loss,self.aN.get_trainable_variables())
             #self.mu_losses.append(self.mu_loss)
               self.mu_optimizer.apply_gradients(zip(grads_mu, self.aN.get_trainable_variables()))
-              self.update_target_weights('a')
+              self.update_target_weights(self.aN)
         else:
             self.aN.custom_update(self)
         
 
         
-        self.update_target_weights('q')
+        self.update_target_weights(self.qN)
       
     def log_metrics(self,c):
         log_metric("Q_loss",self.q_loss.numpy(),c)
@@ -104,7 +103,11 @@ class DDPGAgent:
         if self.aN.update_actor:
             log_metric("A_loss",self.mu_loss.numpy(),c)
             self.mu_losses.append(self.mu_loss)
-        log_metric("A_Value",self.aN.mu(np.expand_dims([0,0.5], axis=0),'target').numpy(),c)
+        #if isinstance(self.V_0, str): 
+        #    self.V_t = eval(self.V_0)
+        #else:
+        #    self.V_t = self.V_0
+        log_metric("A_Value",self.aN.mu(np.expand_dims([0,100], axis=0),'target').numpy(),c)
         
         #
 

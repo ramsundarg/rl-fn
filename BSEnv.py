@@ -7,13 +7,9 @@ import tensorflow as tf
 
 from mlflow import log_metric, log_param, log_artifacts
 
-def wealth_update(r, mu, sigma, dt,  action, dW_t):
-    return np.exp(
-        (r + action * (mu - r) - 0.5 * (action ** 2) * (sigma ** 2)) * dt
-        + action * sigma * dW_t
-    )
 
-class BSEnv:
+
+class BSEnv(gym.Env):
     """
     Custom discrete-time Black-Scholes environment with one risky-asset and bank account
     The environment simulates the evolution of the investor's portfolio according to
@@ -52,9 +48,23 @@ class BSEnv:
         
         #self.U_2 = env.get('U_2',math.log)
         self.reset()
+        
+        self.action_space = spaces.Box(low=-1, high=1,
+                               shape=(1,), dtype=np.float32)
+
+        # Observations: t in [0,T]; V_t in [0, infinity)
+        self.observation_space = spaces.Box(low=np.array([0, 0]),
+                                            high=np.array([self.T, float("inf")]),
+                                            shape=(2,),
+                                            dtype=np.float32)
  
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
 
+    def wealth_update(self,r, mu, sigma, dt,  action, dW_t):
+        return np.exp(
+            (r + action[0] * (mu - r) - 0.5 * (action[0] ** 2) * (sigma ** 2)) * dt
+            + action[0] * sigma * dW_t
+        )
     def step(self, action):
         """Execute one time step within the environment
 
@@ -63,7 +73,7 @@ class BSEnv:
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
         dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt))
         # Wealth process update via simulation of the exponent
-        self.V_t *= wealth_update(self.r, self.mu, self.sigma, self.dt, action, dW_t)
+        self.V_t *= self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dW_t)
         self.t += self.dt
 
         done = self.t >= self.T
@@ -89,3 +99,6 @@ class BSEnv:
 
         return self._get_obs()
 
+    def render(self, mode='human', close=False):
+        # Render the environment to the screen
+        raise NotImplementedError("Use the discrete_bs_render environment for rendering")
