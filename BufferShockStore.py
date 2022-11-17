@@ -95,16 +95,17 @@ class Buffer:
         # Training and updating Actor & Critic networks.
         # See Pseudo Code.
         with tf.GradientTape() as tape:
-            critic_value = qN.q_mu([state_batch, action_batch], 'actual')
-            dP = shock_batch
-            val = env.wealth_update(env.r, env.mu, env.sigma, env.dt, action_batch, dP)
-            shock_update = tf.cast(tf.multiply(val, (state_batch[:,1])[:,tf.newaxis]),dtype=tf.float32)
-            t_1 = tf.repeat((state_batch[:,1]+env.dt)[:,tf.newaxis],dP.shape[0],axis=1)
+            
+            critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
+            dP = shock_batch #Randomly polled from the shock buffer , has no corresponding indices with state buffer. Is this correct ?
+            val = env.wealth_update(env.r, env.mu, env.sigma, env.dt, action_batch, dP) #This is a big update with final dimensions (state_buffer_size X shock_batch_size)
+            shock_update = tf.cast(tf.multiply(val, (state_batch[:,1])[:,tf.newaxis]),dtype=tf.float32) #Dimensions would be (state_buffer_size X shock_batch_size)
+            t_1 = tf.repeat((state_batch[:,1]+env.dt)[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
             done = tf.cast(t_1 >= env.T,tf.float32)
             ns =  tf.stack([shock_update,tf.cast(t_1,tf.float32)],axis=2)
-            target_actions = aN.mu(ns, 'target')
+            target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
             q_next = (done)*env.U_2(shock_update) + tf.reshape(qN.q_mu([ns,target_actions], 'target'),shock_update.shape)
-            q_next = tf.math.reduce_mean(q_next,axis=1)
+            q_next = tf.math.reduce_mean(q_next,axis=1) #Averaged per shock_batch
             self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
            
 
