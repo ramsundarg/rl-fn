@@ -9,7 +9,7 @@ from mlflow import log_metric, log_param, log_artifacts
 
 
 
-class BSEnv(gym.Env):
+class BSAvgState(gym.Env):
     """
     Custom discrete-time Black-Scholes environment with one risky-asset and bank account
     The environment simulates the evolution of the investor's portfolio according to
@@ -39,9 +39,10 @@ class BSEnv(gym.Env):
         self.T = env['T']
         self.dt = env['dt']
         self.V_0 = env['V_0']
+        self.m = 100
         uf = env.get('U_2','math.log')
-        if uf == 'math.log':
-            self.U_2 = math.log
+        if uf == 'np.log':
+            self.U_2 = np.log
         else:
             self.U_2 = self.power_utility
         
@@ -71,20 +72,20 @@ class BSEnv(gym.Env):
         :params action (float): investment in risky asset
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
-        dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt))
+        dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt),size=1)
         # Wealth process update via simulation of the exponent
-        self.V_t *= self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dW_t)
+        V_t = self.V_t * self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dW_t)
         self.t += self.dt
 
         done = self.t >= self.T
-        reward = 0
+        reward=0
         if done:
-            reward = self.U_2(self.V_t)
-
+            reward = self.U_2(V_t)
+        self.V_t = np.mean(V_t)
         # Additional info (not used for now)
         info = {}
 
-        return self._get_obs(), reward, done, info
+        return self._get_obs(), np.mean(reward), done, info
 
 
     def _get_obs(self):

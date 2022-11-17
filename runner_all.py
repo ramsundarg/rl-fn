@@ -128,9 +128,9 @@ def run_experiment(cfg):
         # risky_asset_allocations = np.linspace(-1, 1, 41, dtype='float32')
         # times = np.linspace(0, T, 11, dtype='float32')
 
-        log_param("q_variables", [x.numpy() for x in list(
+        log_param("q_variables", [x for x in list(
             itertools.chain(*qN.get_all_variables()))])
-        log_param("a_variables", [x.numpy() for x in list(
+        log_param("a_variables", [x for x in list(
             itertools.chain(*aN.get_all_variables()))])
 
         def plot(v, title, legends=()):

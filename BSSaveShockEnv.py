@@ -9,7 +9,7 @@ from mlflow import log_metric, log_param, log_artifacts
 
 
 
-class BSEnv(gym.Env):
+class BSSaveShockEnv(gym.Env):
     """
     Custom discrete-time Black-Scholes environment with one risky-asset and bank account
     The environment simulates the evolution of the investor's portfolio according to
@@ -18,7 +18,7 @@ class BSEnv(gym.Env):
     At the end of the investment horizon the reward is equal to U(V(T)), else zero.
     """
     def power_utility(self,x):
-        return tf.pow(x, self.env['b']) / self.env['b']
+        return tf.pow(x*1.0, self.env['b']) / self.env['b']
 
     def __init__(self, env):
         """
@@ -60,11 +60,10 @@ class BSEnv(gym.Env):
  
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
 
-    def wealth_update(self,r, mu, sigma, dt,  action, dW_t):
-        return np.exp(
-            (r + action[0] * (mu - r) - 0.5 * (action[0] ** 2) * (sigma ** 2)) * dt
-            + action[0] * sigma * dW_t
-        )
+    def wealth_update(self,r, mu, sigma, dt,  action, dP):
+        a = action
+        return (1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*sigma**2
+        
     def step(self, action):
         """Execute one time step within the environment
 
@@ -72,19 +71,21 @@ class BSEnv(gym.Env):
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
         dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt))
+        dP = (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
+        
+        
         # Wealth process update via simulation of the exponent
-        self.V_t *= self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dW_t)
+        self.V_t *= self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dP)
         self.t += self.dt
 
         done = self.t >= self.T
         reward = 0
-        if done:
-            reward = self.U_2(self.V_t)
+        reward = (done)*self.U_2(self.V_t)
 
         # Additional info (not used for now)
         info = {}
 
-        return self._get_obs(), reward, done, info
+        return self._get_obs(), reward, done, info,dP
 
 
     def _get_obs(self):
