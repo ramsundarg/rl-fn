@@ -17,12 +17,12 @@ class Q:
         
         
     def q_mu(self,arr,network='actual'):
-        t = tf.reshape(np.array(arr[0])[:,0],[-1,1])
-        V = tf.reshape(np.array(arr[0])[:,1],[-1,1])
-        a = tf.cast(tf.reshape(arr[1],[-1,1]),tf.float32)
+        t = tf.cast(tf.reshape(arr[0][...,0],[-1,1]),tf.float32)
+        V = tf.cast(tf.reshape(arr[0][...,1],[-1,1]),tf.float32)
+        a =tf.cast( tf.reshape(arr[1],[-1,1]),tf.float32)
         T = self.T
-        r= self.r
         dt = self.dt
+        r= self.r
         mu = self.variables[network][0]
         sigma = self.variables[network][1]
         r_ex = mu - r

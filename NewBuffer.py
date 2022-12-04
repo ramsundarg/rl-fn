@@ -25,7 +25,6 @@ the maximum predicted value as seen by the Critic, for a given state.
 import tensorflow as tf
 import numpy as np
 import importlib
-import BSSaveShockEnv
 #from ddpg_generic import DDPGAgent
 
 class Buffer:
@@ -41,11 +40,10 @@ class Buffer:
 
         # Instead of list of tuples as the exp.replay concept go
         # We use different np.arrays for each tuple element
-        self.state_buffer = np.zeros((self.buffer_capacity, ))
-        self.action_buffer = np.zeros((self.buffer_capacity, ))
-        self.reward_buffer = np.zeros((self.buffer_capacity, ))
-        self.next_state_buffer = np.zeros((self.buffer_capacity, ))
-        self.shock_buffer = np.zeros((self.buffer_capacity, ))
+        self.state_buffer = np.zeros((self.buffer_capacity, 2))
+        self.action_buffer = np.zeros((self.buffer_capacity, 1))
+        self.reward_buffer = np.zeros((self.buffer_capacity, 1))
+        self.next_state_buffer = np.zeros((self.buffer_capacity, 2))
         qN_lib = importlib.import_module(
             'qN.{}'.format(cfg['ddpg']['q']['name']))
         qN = getattr(qN_lib, 'Q')(cfg)
@@ -59,7 +57,7 @@ class Buffer:
         self.tau = cfg['ddpg']['tau']
         self.critic_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['q']['lr'])
         self.actor_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['a']['lr'])
-        self.env  = BSSaveShockEnv.BSSaveShockEnv(cfg['env'])
+        self.actor_loss = 1
 
 
     # Takes (s,a,r,s') obervation tuple as input
@@ -68,11 +66,10 @@ class Buffer:
         # replacing old records
         index = self.buffer_counter % self.buffer_capacity
 
-        self.state_buffer[index] = obs_tuple[0]
+        self.state_buffer[index] = obs_tuple[0][0:2]
         self.action_buffer[index] = obs_tuple[1]
         self.reward_buffer[index] = obs_tuple[2]
-        self.next_state_buffer[index] = obs_tuple[3]
-        self.shock_buffer[index]= obs_tuple[3][2]
+        self.next_state_buffer[index] = obs_tuple[3][0:2]
 
         self.buffer_counter += 1
 
@@ -86,54 +83,41 @@ class Buffer:
         action_batch,
         reward_batch,
         next_state_batch,
-        shock_batch
         
     ):
         aN= self.aN
         qN = self.qN
         gamma= self.gamma
-        env = self.env
         # Training and updating Actor & Critic networks.
         # See Pseudo Code.
         with tf.GradientTape() as tape:
-            
-            critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
-            dP = shock_batch #Randomly polled from the shock buffer , has no corresponding indices with state buffer. Is this correct ?
-            next_returns = env.wealth_update(env.r, env.mu, env.sigma, env.dt, action_batch, dP) #This is a big update with final dimensions (state_buffer_size X shock_batch_size)
-            wealth_paths = tf.cast(tf.multiply(next_returns, (state_batch[:,1])[:,tf.newaxis]),dtype=tf.float32) #Dimensions would be (state_buffer_size X shock_batch_size)
-            t_1 = tf.repeat((state_batch[:,0]+env.dt)[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
-            #t_0 = tf.repeat((state_batch[:,0])[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
-            done = tf.cast(t_1 >= env.T,tf.float32)
-            ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
-            target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
-            q_next = (done)*env.U_2(wealth_paths) + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape)
-            q_next = tf.math.reduce_mean(q_next,axis=1) #Averaged per shock_batch
-            self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
-           
+            target_actions = aN.mu(next_state_batch, 'target')
+            y = reward_batch + gamma * qN.q_mu(
+                [next_state_batch, target_actions], 'target'
+            )
+            critic_value = qN.q_mu([state_batch, action_batch], 'actual')
+            self.critic_loss = tf.math.reduce_mean(tf.math.square(y - critic_value))
+
 
         critic_grad = tape.gradient(self.critic_loss, qN.get_trainable_variables())
         self.critic_optimizer.apply_gradients(
             zip(critic_grad,  qN.get_trainable_variables())
         )
-        if aN.update_actor:
-            with tf.GradientTape() as tape:
-                actions = aN.mu(state_batch, 'actual')
-                critic_value = qN.q_mu([state_batch, actions], 'actual')
-                # Used `-value` as we want to maximize the value given
-                # by the critic for our actions
-                self.actor_loss = -tf.math.reduce_mean(critic_value)
-    
-    
-                #mlflow.log_metric("A loss",actor_loss.numpy())
-    
-            actor_grad = tape.gradient(self.actor_loss, aN.get_trainable_variables())
-            self.actor_optimizer.apply_gradients(
-                zip(actor_grad,  aN.get_trainable_variables())
-            )
-        else:
-            aN.custom_update(self)
+
+        with tf.GradientTape() as tape:
+            actions = aN.mu(state_batch, 'actual')
+            critic_value = qN.q_mu([state_batch, actions], 'actual')
+            # Used `-value` as we want to maximize the value given
+            # by the critic for our actions
+            self.actor_loss = -tf.math.reduce_mean(critic_value)
 
 
+            #mlflow.log_metric("A loss",actor_loss.numpy())
+
+        actor_grad = tape.gradient(self.actor_loss, aN.get_trainable_variables())
+        self.actor_optimizer.apply_gradients(
+            zip(actor_grad,  aN.get_trainable_variables())
+        )
 
     def update_target_weights(self,N,tau):
         if hasattr(N,'update_weight'):
@@ -147,7 +131,6 @@ class Buffer:
         record_range = min(self.buffer_counter, self.buffer_capacity)
         # Randomly sample indices
         batch_indices = np.random.choice(record_range, self.batch_size)
-        batch_indices2 = np.random.choice(record_range, 16)
 
         # Convert to tensors
         state_batch = tf.convert_to_tensor(self.state_buffer[batch_indices])
@@ -155,8 +138,7 @@ class Buffer:
         reward_batch = tf.convert_to_tensor(self.reward_buffer[batch_indices])
         reward_batch = tf.cast(reward_batch, dtype=tf.float32)
         next_state_batch = tf.convert_to_tensor(self.next_state_buffer[batch_indices])
-        shock_batch = tf.convert_to_tensor(self.shock_buffer[batch_indices2])
 
-        self.update(state_batch, action_batch, reward_batch, next_state_batch,shock_batch)
+        self.update(state_batch, action_batch, reward_batch, next_state_batch)
         self.update_target_weights(self.aN, self.tau)
         self.update_target_weights(self.qN,  self.tau)

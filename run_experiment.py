@@ -95,11 +95,10 @@ ou_noise = OUActionNoise(mean=np.zeros(1), std_deviation=float(std_dev) * np.one
 def trainer(cfg):
     
     total_episodes = cfg['general_settings']['max_episodes']
-    buffer = Buffer(cfg)
-    env_lib = importlib.import_module('{}'.format(cfg['env']['name']))
-    env = getattr(env_lib, cfg['env']['name'])(cfg['env'])
     buffer_lib = importlib.import_module('{}'.format(cfg['buffer']['name']))
     buffer = getattr(buffer_lib, "Buffer")(cfg)
+    env_lib = importlib.import_module('{}'.format(cfg['env']['name']))
+    env = getattr(env_lib, cfg['env']['name'])(cfg['env'])
     for ep in range(total_episodes):
     
         prev_state = env.reset()

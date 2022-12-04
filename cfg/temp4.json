@@ -1,19 +1,18 @@
 {
   "name": "Log function with derivable parameters and not parametric variables",
   "env": {
-    "name": "BSAvgState",
+    "name": "BSEnv",
     "mu": 0.045,
     "sigma": 0.3,
-    "r": 0.0,
+    "r": 0,
     "T": 1,
     "dt": 0.2,
-    "V_0":100,
-    "U_2" :"np.log",
+    "V_0": 100,
+    "U_2": "np.log",
     "b": 0.5
   },
-  "buffer":
-  {
-      "name" : "BufferShockStore"
+   "buffer": {
+    "name": "NewBuffer"
   },
   "general_settings": {
     "max_episodes": 10000,
@@ -34,14 +33,12 @@
         0.1
       ]
     },
-        "a": {
+    "a": {
       "name": "a_pow_ut1",
       "lr": 0.001,
       "variables": {
         "m": 0.1
-
       }
     }
   }
 }
-

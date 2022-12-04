@@ -39,8 +39,8 @@ class BSEnv(gym.Env):
         self.T = env['T']
         self.dt = env['dt']
         self.V_0 = env['V_0']
-        uf = env.get('U_2','math.log')
-        if uf == 'math.log':
+        uf = env.get('U_2','np.log')
+        if uf == 'np.log':
             self.U_2 = math.log
         else:
             self.U_2 = self.power_utility

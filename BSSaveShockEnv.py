@@ -39,9 +39,9 @@ class BSSaveShockEnv(gym.Env):
         self.T = env['T']
         self.dt = env['dt']
         self.V_0 = env['V_0']
-        uf = env.get('U_2','math.log')
-        if uf == 'math.log':
-            self.U_2 = math.log
+        uf = env.get('U_2','np.log')
+        if uf == 'np.log':
+            self.U_2 = np.log
         else:
             self.U_2 = self.power_utility
         
@@ -62,7 +62,10 @@ class BSSaveShockEnv(gym.Env):
 
     def wealth_update(self,r, mu, sigma, dt,  action, dP):
         a = action
-        return (1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*sigma**2
+        return tf.exp((1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*(sigma**2))
+    def wealth_update_1(self,r, mu, sigma, dt,  action,dP):
+        a = action[0]
+        return tf.exp((1-a)*r*dt + a*dP + 0.5*a*(1-a)*dt*(sigma**2))
         
     def step(self, action):
         """Execute one time step within the environment
@@ -75,7 +78,7 @@ class BSSaveShockEnv(gym.Env):
         
         
         # Wealth process update via simulation of the exponent
-        self.V_t *= self.wealth_update(self.r, self.mu, self.sigma, self.dt, action, dP)
+        self.V_t *= self.wealth_update_1(self.r, self.mu, self.sigma, self.dt, action, dP)
         self.t += self.dt
 
         done = self.t >= self.T
@@ -85,7 +88,7 @@ class BSSaveShockEnv(gym.Env):
         # Additional info (not used for now)
         info = {}
 
-        return self._get_obs(), reward, done, info,dP
+        return self._get_obs(), reward, done, dP
 
 
     def _get_obs(self):

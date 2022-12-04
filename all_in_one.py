@@ -171,7 +171,7 @@ def hypertune(level, idx, hypertune_items):
     if idx == len(hypertune_items):
         if level == 0:
             cfg_copy.pop('tune', None)
-            run_experiment.run_experiment(cfg_copy)
+            run_experiment(cfg_copy)
             
             print(cfg_copy)
             config_count= config_count+1
