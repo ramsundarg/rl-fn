@@ -25,6 +25,7 @@ the maximum predicted value as seen by the Critic, for a given state.
 import tensorflow as tf
 import numpy as np
 import importlib
+import BSAvgState
 #from ddpg_generic import DDPGAgent
 
 class Buffer:
@@ -34,7 +35,8 @@ class Buffer:
         self.buffer_capacity = cfg['ddpg']['buffer_len']
         # Num of tuples to train on.
         self.batch_size = cfg['general_settings']['batch_size']
-
+        self.m = cfg['buffer']['m']
+        
         # Its tells us num of times record() was called.
         self.buffer_counter = 0
 
@@ -44,6 +46,9 @@ class Buffer:
         self.action_buffer = np.zeros((self.buffer_capacity, 1))
         self.reward_buffer = np.zeros((self.buffer_capacity, 1))
         self.next_state_buffer = np.zeros((self.buffer_capacity, 2))
+        
+        self.rs = np.zeros((self.buffer_capacity, self.m))
+        self.vs = np.zeros((self.buffer_capacity, self.m))
         qN_lib = importlib.import_module(
             'qN.{}'.format(cfg['ddpg']['q']['name']))
         qN = getattr(qN_lib, 'Q')(cfg)
@@ -57,6 +62,8 @@ class Buffer:
         self.tau = cfg['ddpg']['tau']
         self.critic_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['q']['lr'])
         self.actor_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['a']['lr'])
+        self.actor_loss = 1
+        self.env  = BSAvgState.BSAvgState(cfg['env'])
 
 
     # Takes (s,a,r,s') obervation tuple as input
@@ -69,6 +76,9 @@ class Buffer:
         self.action_buffer[index] = obs_tuple[1]
         self.reward_buffer[index] = obs_tuple[2]
         self.next_state_buffer[index] = obs_tuple[3]
+        next_state,reward,done,_ = self.env.peek_steps(obs_tuple[0], obs_tuple[1], self.m)
+        self.rs[index] = reward.concat(obs_tuple[2])
+        self.vs[index] = next_state[1].concat(obs_tuple[3][1])
 
         self.buffer_counter += 1
 
@@ -82,20 +92,27 @@ class Buffer:
         action_batch,
         reward_batch,
         next_state_batch,
+        vs_batch,
+        rs_batch
         
     ):
         aN= self.aN
         qN = self.qN
         gamma= self.gamma
+        env =self.env
         # Training and updating Actor & Critic networks.
         # See Pseudo Code.
         with tf.GradientTape() as tape:
-            target_actions = aN.mu(next_state_batch, 'target')
-            y = reward_batch + gamma * qN.q_mu(
-                [next_state_batch, target_actions], 'target'
-            )
             critic_value = qN.q_mu([state_batch, action_batch], 'actual')
-            self.critic_loss = tf.math.reduce_mean(tf.math.square(y - critic_value))
+            wealth_paths =  tf.cast(vs_batch,tf.float32)#Dimensions would be (batch size X )
+            t_1 = tf.repeat((state_batch[:,0]+env.dt)[:,tf.newaxis],vs_batch.shape[1],axis=1) #Computing next time because reward batch is now recomputed.
+            #t_0 = tf.repeat((state_batch[:,0])[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
+            ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
+            target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
+            q_next = tf.cast(rs_batch,tf.float32) + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape)
+            q_next = tf.math.reduce_mean(q_next,axis=1,keepdims=True) #Averaged per shock_batch
+
+            self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
 
 
         critic_grad = tape.gradient(self.critic_loss, qN.get_trainable_variables())
@@ -137,7 +154,8 @@ class Buffer:
         reward_batch = tf.convert_to_tensor(self.reward_buffer[batch_indices])
         reward_batch = tf.cast(reward_batch, dtype=tf.float32)
         next_state_batch = tf.convert_to_tensor(self.next_state_buffer[batch_indices])
-
-        self.update(state_batch, action_batch, reward_batch, next_state_batch)
+        vs_batch = tf.convert_to_tensor(self.vs[batch_indices])
+        rs_batch = tf.convert_to_tensor(self.rs[batch_indices])
+        self.update(state_batch, action_batch, reward_batch, next_state_batch,vs_batch,rs_batch)
         self.update_target_weights(self.aN, self.tau)
         self.update_target_weights(self.qN,  self.tau)

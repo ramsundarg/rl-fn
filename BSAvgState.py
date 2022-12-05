@@ -38,8 +38,13 @@ class BSAvgState(gym.Env):
         self.r = env['r']
         self.T = env['T']
         self.dt = env['dt']
-        self.V_0 = np.array(env['V_0']).reshape(-1)
-        self.shape = env.get('num_next_steps',1)
+        self.V_0 = env['V_0']
+        self.pre_load = False
+        
+        if env.get('load_variates',0)==1:
+            self.rv = np.load('random_variates.npy')
+            self.nexti = 0
+            self.pre_load = True
         uf = env.get('U_2','np.log')
         if uf == 'np.log':
             self.U_2 = np.log
@@ -62,30 +67,55 @@ class BSAvgState(gym.Env):
                                             dtype=np.float32)
         
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
-
+    def wealth_grid_update(self,r, mu, sigma, dt,  action, dP):
+            a = action
+            return tf.exp((1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*(sigma**2))
     def wealth_update(self,r, mu, sigma, dt,  action, dP):
         a = action
         return tf.exp((1-a)*r*dt + action*dP + 0.5*a*(1-a)*dt*(sigma**2))
-   
+
+    def generate_random_returns(self,count):
+            if self.pre_load:
+                dW_t = np.array(np.roll(self.rv,self.nexti)[0:count]).reshape(-1)
+                self.nexti = (self.nexti+count)%100000 # Max size of the random variates file
+            else:
+                dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt),size=(count))
+            return (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
         
-    def step(self, action,dP=None):
+    def peek_steps(self, state,action,count):
         """Execute one time step within the environment
 
         :params action (float): investment in risky asset
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
-        if dP==None:
-            dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt),size=(self.shape))
-            self.dP = (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
-        else:
-            self.dP = dP
+        dP = self.generate_random_returns(count)
         
         # Wealth process update via simulation of the exponent
-        self.V_t = self.V_t[0] *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), self.dP)
+        next_wealth = state[1] *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action),dP)
+        next_time = np.ones_like(next_wealth)*state[0]+self.dt
+
+        done = next_time >= self.T
+        reward = (done)*self.U_2(self.V_t)
+
+        # Additional info (not used for now)
+        info = {}
+
+        return np.array([next_time, next_wealth], dtype=np.float32), reward, done, dP
+
+
+    def step(self, action):
+        """Execute one time step within the environment
+
+        :params action (float): investment in risky asset
+        """
+        # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
+        self.dP = self.generate_random_returns(1).ravel()
+        
+        # Wealth process update via simulation of the exponent
+        self.V_t = self.V_t *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), self.dP)
         self.t += self.dt
 
         done = self.t >= self.T
-        reward = 0
         reward = (done)*self.U_2(self.V_t)
 
         # Additional info (not used for now)
@@ -95,13 +125,13 @@ class BSAvgState(gym.Env):
 
 
     def _get_obs(self):
-        return np.array([self.t, self.V_t,self.dP], dtype=np.float32)
+        return np.array([self.t, self.V_t], dtype=np.float32)
 
     def reset(self):
         """Reset the state of the environment to an initial state"""
-        self.t = 0
+        self.t = np.zeros_like(self.V_0)
         if isinstance(self.V_0, str):
-            self.V_t = np.array(eval(self.V_0))
+            self.V_t = np.array(eval(self.V_0)).reshape(-1)
         else:
             self.V_t = self.V_0
 

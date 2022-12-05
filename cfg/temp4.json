@@ -1,18 +1,20 @@
 {
   "name": "Log function with derivable parameters and not parametric variables",
   "env": {
-    "name": "BSEnv",
-    "mu": 0.045,
-    "sigma": 0.3,
+    "name": "BSAvgState",
+    "mu": 0.16,
+    "sigma": 0.8,
     "r": 0,
     "T": 1,
     "dt": 0.2,
-    "V_0": 100,
-    "U_2": "np.log",
-    "b": 0.5
+    "V_0": 0.5,
+    "U_2": "pow",
+    "b": 0.5,
+    "load_variates":0
   },
    "buffer": {
-    "name": "NewBuffer"
+    "name": "BufferAvgState",
+    "m" : 16
   },
   "general_settings": {
     "max_episodes": 10000,
@@ -20,11 +22,11 @@
     "batch_size": 2048
   },
   "ddpg": {
-    "gamma": 1,
+    "gamma":1,
     "tau": 0.005,
     "buffer_len": 10000000,
     "q": {
-      "name": "q_log_utparametric",
+      "name": "q_pow_utparametric",
       "lr": 0.005,
       "variables": [
         0.1,

@@ -114,7 +114,7 @@ def trainer(cfg):
             # Recieve state and reward from environment.
             state, reward, done, info = env.step(action)
     
-            buffer.record((prev_state, action, reward, state))
+            buffer.record((prev_state, action, reward, state,info))
             episodic_reward += reward
     
             buffer.learn()

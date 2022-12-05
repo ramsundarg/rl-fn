@@ -19,7 +19,7 @@ class Q:
     def q_mu(self,arr,network='actual'):
         t = tf.cast(tf.reshape(arr[0][...,0],[-1,1]),tf.float32)
         V = tf.cast(tf.reshape(arr[0][...,1],[-1,1]),tf.float32)
-        a = tf.cast(tf.reshape(arr[1][...,1],[-1,1]),tf.float32)
+        a = tf.cast(tf.reshape(arr[1],[-1,1]),tf.float32)
         T = self.T
         dt = self.dt
         v = self.variables[network]

@@ -25,7 +25,7 @@ the maximum predicted value as seen by the Critic, for a given state.
 import tensorflow as tf
 import numpy as np
 import importlib
-import BSSaveShockEnv
+import BSAvgState
 #from ddpg_generic import DDPGAgent
 
 class Buffer:
@@ -35,17 +35,18 @@ class Buffer:
         self.buffer_capacity = cfg['ddpg']['buffer_len']
         # Num of tuples to train on.
         self.batch_size = cfg['general_settings']['batch_size']
+        self.m = cfg['buffer']['m']
 
         # Its tells us num of times record() was called.
         self.buffer_counter = 0
 
         # Instead of list of tuples as the exp.replay concept go
         # We use different np.arrays for each tuple element
-        self.state_buffer = np.zeros((self.buffer_capacity, ))
-        self.action_buffer = np.zeros((self.buffer_capacity, ))
-        self.reward_buffer = np.zeros((self.buffer_capacity, ))
-        self.next_state_buffer = np.zeros((self.buffer_capacity, ))
-        self.shock_buffer = np.zeros((self.buffer_capacity, ))
+        self.state_buffer = np.zeros((self.buffer_capacity,2 ))
+        self.action_buffer = np.zeros((self.buffer_capacity,1 ))
+        self.reward_buffer = np.zeros((self.buffer_capacity, 1))
+        self.next_state_buffer = np.zeros((self.buffer_capacity,2 ))
+        self.shock_buffer = np.zeros((self.buffer_capacity,1 ))
         qN_lib = importlib.import_module(
             'qN.{}'.format(cfg['ddpg']['q']['name']))
         qN = getattr(qN_lib, 'Q')(cfg)
@@ -59,7 +60,7 @@ class Buffer:
         self.tau = cfg['ddpg']['tau']
         self.critic_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['q']['lr'])
         self.actor_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['a']['lr'])
-        self.env  = BSSaveShockEnv.BSSaveShockEnv(cfg['env'])
+        self.env  = BSAvgState.BSAvgState(cfg['env'])
 
 
     # Takes (s,a,r,s') obervation tuple as input
@@ -72,7 +73,7 @@ class Buffer:
         self.action_buffer[index] = obs_tuple[1]
         self.reward_buffer[index] = obs_tuple[2]
         self.next_state_buffer[index] = obs_tuple[3]
-        self.shock_buffer[index]= obs_tuple[3][2]
+        self.shock_buffer[index]= obs_tuple[4]
 
         self.buffer_counter += 1
 
@@ -99,7 +100,7 @@ class Buffer:
             
             critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
             dP = shock_batch #Randomly polled from the shock buffer , has no corresponding indices with state buffer. Is this correct ?
-            next_returns = env.wealth_update(env.r, env.mu, env.sigma, env.dt, action_batch, dP) #This is a big update with final dimensions (state_buffer_size X shock_batch_size)
+            next_returns = env.wealth_grid_update(env.r, env.mu, env.sigma, env.dt, action_batch, dP) #This is a big update with final dimensions (state_buffer_size X shock_batch_size)
             wealth_paths = tf.cast(tf.multiply(next_returns, (state_batch[:,1])[:,tf.newaxis]),dtype=tf.float32) #Dimensions would be (state_buffer_size X shock_batch_size)
             t_1 = tf.repeat((state_batch[:,0]+env.dt)[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
             #t_0 = tf.repeat((state_batch[:,0])[:,tf.newaxis],dP.shape[0],axis=1) #Computing next time because reward batch is now recomputed.
@@ -107,7 +108,7 @@ class Buffer:
             ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
             target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
             q_next = (done)*env.U_2(wealth_paths) + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape)
-            q_next = tf.math.reduce_mean(q_next,axis=1) #Averaged per shock_batch
+            q_next = tf.math.reduce_mean(q_next,axis=1,keepdims=True) #Averaged per shock_batch
             self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
            
 
@@ -147,7 +148,7 @@ class Buffer:
         record_range = min(self.buffer_counter, self.buffer_capacity)
         # Randomly sample indices
         batch_indices = np.random.choice(record_range, self.batch_size)
-        batch_indices2 = np.random.choice(record_range, 16)
+        batch_indices2 = np.random.choice(record_range, self.m)
 
         # Convert to tensors
         state_batch = tf.convert_to_tensor(self.state_buffer[batch_indices])

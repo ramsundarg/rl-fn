@@ -69,7 +69,7 @@ class Buffer:
         self.state_buffer[index] = obs_tuple[0][0:2]
         self.action_buffer[index] = obs_tuple[1]
         self.reward_buffer[index] = obs_tuple[2]
-        self.next_state_buffer[index] = obs_tuple[3][0:2]
+        self.next_state_buffer[index] = obs_tuple[3][0:2].ravel()
 
         self.buffer_counter += 1
 
