@@ -26,43 +26,18 @@ import tensorflow as tf
 import numpy as np
 import importlib
 import BSAvgState
+import CommonBuffer
+import CommonDDPG
 #from ddpg_generic import DDPGAgent
 
-class Buffer:
+class DDPGAvgState(CommonDDPG.DDPG):
     def __init__(self,cfg):
         # Number of "experiences" to store at max
         self.cfg = cfg
-        self.buffer_capacity = cfg['ddpg']['buffer_len']
-        # Num of tuples to train on.
-        self.batch_size = cfg['general_settings']['batch_size']
         self.m = cfg['buffer']['m']
-        
-        # Its tells us num of times record() was called.
-        self.buffer_counter = 0
-
-        # Instead of list of tuples as the exp.replay concept go
-        # We use different np.arrays for each tuple element
-        self.state_buffer = np.zeros((self.buffer_capacity, 2))
-        self.action_buffer = np.zeros((self.buffer_capacity, 1))
-        self.reward_buffer = np.zeros((self.buffer_capacity, 1))
-        self.next_state_buffer = np.zeros((self.buffer_capacity, 2))
-        
-        self.rs = np.zeros((self.buffer_capacity, self.m))
-        self.vs = np.zeros((self.buffer_capacity, self.m))
-        qN_lib = importlib.import_module(
-            'qN.{}'.format(cfg['ddpg']['q']['name']))
-        qN = getattr(qN_lib, 'Q')(cfg)
-
-        aN_lib = importlib.import_module(
-            'aN.{}'.format(cfg['ddpg']['a']['name']))
-        aN = getattr(aN_lib, 'A')(cfg)
-        self.aN = aN
-        self.qN = qN
-        self.gamma = cfg['ddpg']['gamma']
-        self.tau = cfg['ddpg']['tau']
-        self.critic_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['q']['lr'])
-        self.actor_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['a']['lr'])
-        self.actor_loss = 1
+        attr_dict = { 'state'  : 2 , 'action' : 1 , 'reward' : 1 , 'next_state' : 2, 'vs' : self.m , 'rs' : self.m } # Value of each key correponds to dimensions (shape) of the attribute 
+        super().__init__(cfg)
+        self.buffer = CommonBuffer.CommonBuffer(cfg, attr_dict)
         self.env  = BSAvgState.BSAvgState(cfg['env'])
 
 
@@ -70,17 +45,13 @@ class Buffer:
     def record(self, obs_tuple):
         # Set index to zero if buffer_capacity is exceeded,
         # replacing old records
-        index = self.buffer_counter % self.buffer_capacity
-
-        self.state_buffer[index] = obs_tuple[0]
-        self.action_buffer[index] = obs_tuple[1]
-        self.reward_buffer[index] = obs_tuple[2]
-        self.next_state_buffer[index] = obs_tuple[3]
+        obs_dict = { 'state' : obs_tuple[0],'action' : obs_tuple[1], 'reward' : obs_tuple[2],'next_state' : obs_tuple[3]}
         next_state,reward,done,_ = self.env.peek_steps(obs_tuple[0], obs_tuple[1], self.m)
-        self.rs[index] = reward.concat(obs_tuple[2])
-        self.vs[index] = next_state[1].concat(obs_tuple[3][1])
+        obs_dict['vs'] = next_state
+        obs_dict['rs'] = reward
+        self.buffer.record(obs_dict)
 
-        self.buffer_counter += 1
+
 
     # Eager execution is turned on by default in TensorFlow 2. Decorating with tf.function allows
     # TensorFlow to build a static graph out of the logic and computations in our function.
@@ -135,27 +106,9 @@ class Buffer:
             zip(actor_grad,  aN.get_trainable_variables())
         )
 
-    def update_target_weights(self,N,tau):
-        if hasattr(N,'update_weight'):
-            return N.update_weight()
-        t,a = N.get_all_variables()
-        for i in range(len(t)):
-            t[i] =tau*a[i] + (1-tau)*t[i]
+
     # We compute the loss and update parameters
     def learn(self):
         # Get sampling range
-        record_range = min(self.buffer_counter, self.buffer_capacity)
-        # Randomly sample indices
-        batch_indices = np.random.choice(record_range, self.batch_size)
-
-        # Convert to tensors
-        state_batch = tf.convert_to_tensor(self.state_buffer[batch_indices])
-        action_batch = tf.convert_to_tensor(self.action_buffer[batch_indices])
-        reward_batch = tf.convert_to_tensor(self.reward_buffer[batch_indices])
-        reward_batch = tf.cast(reward_batch, dtype=tf.float32)
-        next_state_batch = tf.convert_to_tensor(self.next_state_buffer[batch_indices])
-        vs_batch = tf.convert_to_tensor(self.vs[batch_indices])
-        rs_batch = tf.convert_to_tensor(self.rs[batch_indices])
-        self.update(state_batch, action_batch, reward_batch, next_state_batch,vs_batch,rs_batch)
-        self.update_target_weights(self.aN, self.tau)
-        self.update_target_weights(self.qN,  self.tau)
+        attr_dict = self.buffer.get_batch(['state','action','reward','next_state','vs','rs'])
+        super().learn(attr_dict)

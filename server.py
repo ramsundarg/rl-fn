@@ -33,9 +33,9 @@ async def handle_data(request: Request):
         cfg = json.loads(cfg)
         print(cfg)
         
-        #thread = multiprocessing.Process(target= run_experiment.run_experiment,args=(cfg,))
-        #thread.start()
-        #time.sleep(10)
+        thread = multiprocessing.Process(target= run_experiment.run_experiment,args=(cfg,))
+        thread.start()
+        time.sleep(10)
         experiment_name = 'Type:{} q:{} a:{}'.format( cfg['env']["U_2"],cfg['ddpg']['q']['name'],cfg['ddpg']['a']['name'])
         e = mlflow.get_experiment_by_name(experiment_name)
         df = mlflow.search_runs([e.experiment_id],"attributes.status = 'RUNNING'", order_by=["attribute.start_time DESC"],max_results=1)
