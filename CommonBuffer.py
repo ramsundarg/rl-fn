@@ -21,23 +21,25 @@ class CommonBuffer:
         self.buffer_counter = 0
         
         self.buffer = dict()
-        for key in range(attr_dict):
+        for key in attr_dict.keys():
             self.buffer[key] = np.zeros((self.buffer_capacity,attr_dict[key]))
 
-        # Takes (s,a,r,s') obervation tuple as input
-        def record(self, obs_dict):
-            # Set index to zero if buffer_capacity is exceeded,
-            # replacing old records
-            index = self.buffer_counter % self.buffer_capacity
-            for key in obs_dict:
-                self.buffer[key][index] = obs_dict[key]
-            self.buffer_counter += 1
-            
-        def get_batch(self,attr_list,batch_size=self.batch_size):
-            record_range = min(self.buffer_counter, self.buffer_capacity)
-            batch_indices = np.random.choice(record_range, batch_size)
-            attr_dict =dict()
-            for key in attr_list:
-                batch = tf.convert_to_tensor(self.buffer[key][batch_indices])                
-                attr_dict[key] = batch
-            return attr_dict
+    # Takes (s,a,r,s') obervation tuple as input
+    def record(self, obs_dict):
+        # Set index to zero if buffer_capacity is exceeded,
+        # replacing old records
+        index = self.buffer_counter % self.buffer_capacity
+        for key in obs_dict:
+            self.buffer[key][index] = obs_dict[key]
+        self.buffer_counter += 1
+        
+    def get_batch(self,attr_list,batch_size=None):
+        if batch_size == None:
+            batch_size = self.batch_size
+        record_range = min(self.buffer_counter, self.buffer_capacity)
+        batch_indices = np.random.choice(record_range, batch_size)
+        attr_dict =dict()
+        for key in attr_list:
+            batch = tf.convert_to_tensor(self.buffer[key][batch_indices])                
+            attr_dict[key] = batch
+        return attr_dict

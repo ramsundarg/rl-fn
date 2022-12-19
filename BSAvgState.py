@@ -109,19 +109,19 @@ class BSAvgState(gym.Env):
         :params action (float): investment in risky asset
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
-        self.dP = self.generate_random_returns(1).ravel()
+        dP = self.generate_random_returns(1).ravel()
         
         # Wealth process update via simulation of the exponent
-        self.V_t = self.V_t *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), self.dP)
+        self.V_t = self.V_t *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), dP)
         self.t += self.dt
 
         done = self.t >= self.T
         reward = (done)*self.U_2(self.V_t)
 
         # Additional info (not used for now)
-        info = {}
+        info = dP
 
-        return self._get_obs(), reward, done, info
+        return self._get_obs(), reward, done, dP
 
 
     def _get_obs(self):

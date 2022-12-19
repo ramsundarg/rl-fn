@@ -30,7 +30,7 @@ import CommonBuffer
 import CommonDDPG
 #from ddpg_generic import DDPGAgent
 
-class DDPGAvgState(CommonDDPG.DDPG):
+class DDPG(CommonDDPG.DDPG):
     def __init__(self,cfg):
         # Number of "experiences" to store at max
         self.cfg = cfg

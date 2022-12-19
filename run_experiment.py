@@ -21,7 +21,7 @@ import numpy as np
 import importlib
 import copy
 import os
-from NewBuffer import Buffer
+#from NewBuffer import Buffer
 from mlflow import log_metric, log_param, log_artifact, tensorflow
 
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -96,7 +96,7 @@ def trainer(cfg):
     
     total_episodes = cfg['general_settings']['max_episodes']
     buffer_lib = importlib.import_module('{}'.format(cfg['buffer']['name']))
-    buffer = getattr(buffer_lib, "Buffer")(cfg)
+    buffer = getattr(buffer_lib, "DDPG")(cfg)
     env_lib = importlib.import_module('{}'.format(cfg['env']['name']))
     env = getattr(env_lib, cfg['env']['name'])(cfg['env'])
     for ep in range(total_episodes):
