@@ -76,10 +76,10 @@ exploration.
 """
 
 
-def policy(sampled_actions, noise_object):
+def policy(sampled_actions, noise_object,factor=1,scale=1):
     noise = noise_object()
     # Adding noise to action
-    sampled_actions = sampled_actions.numpy() + noise
+    sampled_actions = sampled_actions.numpy() + scale*factor*noise
 
     # We make sure action is within bounds
     legal_action = np.clip(sampled_actions, -1, 1)
@@ -99,6 +99,8 @@ def trainer(cfg):
     buffer = getattr(buffer_lib, "DDPG")(cfg)
     env_lib = importlib.import_module('{}'.format(cfg['env']['name']))
     env = getattr(env_lib, cfg['env']['name'])(cfg['env'])
+    tau_decay = (cfg['ddpg'].get('tau_decay',"none")=="linear")
+    a_vals = np.zeros(1000)
     for ep in range(total_episodes):
     
         prev_state = env.reset()
@@ -109,8 +111,11 @@ def trainer(cfg):
             tf_prev_state = tf.expand_dims(tf.convert_to_tensor(prev_state), 0)
             sampled_actions = tf.squeeze(buffer.aN.mu(tf_prev_state,'actual'))
 
-    
-            action = policy(sampled_actions, ou_noise)
+            factor = cfg['ddpg'].get('noise_decay',1)
+            if factor == "linear":
+                factor = (total_episodes-ep)*1.0/total_episodes
+                
+            action = policy(sampled_actions, ou_noise,factor,cfg['ddpg'].get('noise_scale',1))
             # Recieve state and reward from environment.
             state, reward, done, info = env.step(action)
     
@@ -118,15 +123,20 @@ def trainer(cfg):
             episodic_reward += reward
     
             buffer.learn()
+            if tau_decay:
+                buffer.update_tau((total_episodes-ep)*1.0/total_episodes)
 
             # End this episode when `done` is True
             if done:
                 break
     
             prev_state = state
-            
+            a_vals[ep%1000]=buffer.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy() 
         if ep%100==0:
-            mlflow.log_metric("A_Value",buffer.aN.mu(np.expand_dims([0,100], axis=0),'target').numpy(),ep)
+            mlflow.log_metric("Factor",factor,ep)
+            mlflow.log_metric("A_Value",buffer.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy(),ep)
+            mlflow.log_metric("A_Value_Smooth",np.mean(a_vals),ep)
+            mlflow.log_metric("A_Value_Variance",np.var(a_vals),ep)
             mlflow.log_metric("A loss",buffer.actor_loss.numpy(),ep)
             mlflow.log_metric("Q loss",buffer.critic_loss.numpy(),ep)
             
@@ -134,6 +144,8 @@ def trainer(cfg):
         itertools.chain(*buffer.qN.get_all_variables()))])
     log_param("a_variables", [x.numpy() for x in list(
         itertools.chain(*buffer.aN.get_all_variables()))])
+    mlflow.log_param("Accuracy",(np.mean(a_vals)/cfg['A_Value_Ex']))
+    
 
 
 
@@ -144,7 +156,24 @@ def flatten_dict(d: MutableMapping, sep: str= '.') -> MutableMapping:
     return flat_dict
 # Save the weights
 def run_experiment(cfg):
-    experiment_name = 'Type:{} q:{} a:{}'.format( cfg['env']["U_2"],cfg['ddpg']['q']['name'],cfg['ddpg']['a']['name'])
+    experiment_name = '{}Type:{} q:{} a:{}'.format( cfg.get('name',''),cfg['env']["U_2"],cfg['ddpg']['q']['name'],cfg['ddpg']['a']['name'])
+    env_cfg = cfg['env']
+
+    if(env_cfg['U_2']=='np.log'):
+        m = env_cfg['mu']
+        s = env_cfg['sigma']
+        r = env_cfg['r']
+        cfg['A_Value_Ex'] = (m-r)/(s**2)
+    else:
+        m = env_cfg['mu']
+        s = env_cfg['sigma']
+        r = env_cfg['r']
+        b = env_cfg['b']
+        cfg['A_Value_Ex'] = (m-r)/(s**2*(1-b))
+
+
+
+
     mlflow.set_experiment(experiment_name)
     experiment = mlflow.get_experiment_by_name(experiment_name)
 

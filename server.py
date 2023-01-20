@@ -1,5 +1,5 @@
 
-import run_experiment
+import hypertune
 import multiprocessing
 import json
 from fastapi.templating import Jinja2Templates
@@ -33,7 +33,7 @@ async def handle_data(request: Request):
         cfg = json.loads(cfg)
         print(cfg)
         
-        thread = multiprocessing.Process(target= run_experiment.run_experiment,args=(cfg,))
+        thread = multiprocessing.Process(target= hypertune.server_hypertune,args=(cfg,))
         thread.start()
         time.sleep(10)
         experiment_name = 'Type:{} q:{} a:{}'.format( cfg['env']["U_2"],cfg['ddpg']['q']['name'],cfg['ddpg']['a']['name'])

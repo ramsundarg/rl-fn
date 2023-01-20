@@ -22,6 +22,7 @@ class DDPG:
         self.actor_optimizer = tf.keras.optimizers.Adam(cfg['ddpg']['a']['lr'])
         self.actor_loss = 1
         self.critic_loss = 1
+        self.factor =1 
     
     def update_target_weights(self,N,tau):
         if hasattr(N,'update_weight'):
@@ -32,6 +33,10 @@ class DDPG:
             
     def learn(self,attr_dict):
         self.update(attr_dict)
-        self.update_target_weights(self.aN, self.tau)
-        self.update_target_weights(self.qN,  self.tau)
+        self.update_target_weights(self.aN, self.tau*self.factor)
+        self.update_target_weights(self.qN,  self.tau*self.factor)
+
+    def update_tau(self,factor):
+        self.factor = float(factor)
+
 

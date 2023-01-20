@@ -108,7 +108,7 @@ class DDPG(CommonDDPG.DDPG):
     def learn(self):
         # Get sampling range
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
-        temp = self.buffer.get_batch(['shock'],self.m)
+        temp = self.buffer.get_batch(['shock'],self.m,False)
         attr_dict['shock']= temp['shock']
         super().learn(attr_dict)
 
