@@ -169,6 +169,8 @@ def run_experiment(cfg):
         s = env_cfg['sigma']
         r = env_cfg['r']
         b = env_cfg['b']
+        if b > 1:
+            return
         cfg['A_Value_Ex'] = (m-r)/(s**2*(1-b))
 
 
