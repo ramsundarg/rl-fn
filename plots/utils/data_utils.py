@@ -16,7 +16,7 @@ def filter_bad_data(data):
     return data[abs(data['AdjAccuracy'])<0.01]
 
 def get_all_data(filter=False,good=True):
-    with open('super_computer.pkl', 'rb') as f:
+    with open('super_computer_2.pkl', 'rb') as f:
         loaded_dict = pickle.load(f)
     data = mlflow_util.get_runs_df(params=['buffer.name','env.U_2','ddpg.tau_decay'],metrics=['A_Value_Smooth','A_Value_Ex','env.b','env.mu','env.sigma'],exp_name='511968893925570991',edata=loaded_dict)
     data1 = pd.read_csv("../runs_powut_large_mu.csv",sep=',',header='infer')

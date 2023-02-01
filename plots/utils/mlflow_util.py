@@ -91,6 +91,6 @@ def get_runs_df(params=[],metrics=[],exp_name="",edata={}):
         runs.append(run_dict)
     return pd.DataFrame.from_records(runs)
 
-#e = exp_data()
+#e = exp_data(r'C:\dev\rl-fn\mlruns4\mlruns')
 #df = get_runs_df(params=['buffer.name'],metrics=['A_Value_Smooth','A_Value_Ex','env.b','env.mu','env.sigma'],exp_name='511968893925570991',edata=e)
 #df
