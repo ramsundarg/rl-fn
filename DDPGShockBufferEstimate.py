@@ -23,7 +23,7 @@ the maximum predicted value as seen by the Critic, for a given state.
 """
 
 import tensorflow as tf
-import tensorflow-probability as tfp
+import tensorflow_probability as tfp
 
 import numpy as np
 import importlib
@@ -42,7 +42,7 @@ class DDPG(CommonDDPG.DDPG):
         self.buffer = CommonBuffer.CommonBuffer(cfg, attr_dict)
         self.env  = BSAvgState.BSAvgState(cfg['env'])
         tfd = tfp.distributions
-        self.dist = tf.Normal(0,1)
+        self.dist = tfd.Normal(0,1)
 
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_tuple):
@@ -75,16 +75,17 @@ class DDPG(CommonDDPG.DDPG):
             diff = dW_t[1:,:]-dW_t[:-1,:]
             dW_t = dW_t[:-1,:]
             
-            action= tf.repeat(action_batch,dW_t.shape[1],axis=1)
-            wealth = tf.repeat(state_batch[:,0],dW_t.shape[1],axis=1)
-            time = tf.repeat(state_batch[:,1],dW_t.shape[1],axis=1)
-            wealth_paths = env.VU(state_batch,action_batch,dW_t) #shape : (s,z)
+            action= tf.cast(tf.repeat(action_batch,dW_t.shape[1],axis=1),tf.float32)
+            
+            wealth = tf.cast(tf.repeat((state_batch[:,1])[:,tf.newaxis],dW_t.shape[1],axis=1),tf.float32)
+            time = tf.cast(tf.repeat(state_batch[:,0][:,tf.newaxis],dW_t.shape[1],axis=1),tf.float32)
+            wealth_paths = env.VU(wealth,action,dW_t) #shape : (s,z)
             t_1 = time+env.dt
-            rewards= env.r(t_1,wealth_paths)
+            rewards= env.rw(t_1,wealth_paths)
             pd= self.dist.prob(dW_t)
             ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
             target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
-            q_next = (rewards + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape))*pd*diff
+            q_next = (rewards + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape))*pd
             q_next = tf.math.reduce_sum(q_next,axis=1,keepdims=True) #Averaged per shock_batch
             self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
            
@@ -117,7 +118,5 @@ class DDPG(CommonDDPG.DDPG):
     def learn(self):
         # Get sampling range
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
-        temp = self.buffer.get_batch(['shock'],self.m,False)
-        attr_dict['shock']= temp['shock']
         super().learn(attr_dict)
 
