@@ -103,12 +103,12 @@ def updateASmooth(virtual_data,selected_data):
     d = pd.DataFrame.from_records([{'step' : 0,'value':0,'time':0}])
     print(len(virtual_data),selected_data)
     if virtual_data is None:
-        return html.H3('Number of selected records {}'.format(0)),create_time_series(A,'A Value Smooth'),create_time_series(Ql,'Q Loss'),create_time_series(Al,'A Loss')
+        return html.H3('Number of selected records {}'.format(0)),create_time_series(d,'A Value Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
     df1 = pd.DataFrame.from_dict(virtual_data)
     rlen = df1.shape[0]
 
     if len(selected_data)==0:
-        return html.H3('Number of selected records {}'.format(rlen)),create_time_series(A,'A Value Smooth'),create_time_series(Ql,'Q Loss'),create_time_series(Al,'A Loss')
+        return html.H3('Number of selected records {}'.format(rlen)),create_time_series(d,'A Value Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
     df1= df1.iloc[selected_data]
     exp_id = df1.iloc[0]['exp_id']
     run_id = df1.iloc[0]['run_id']
