@@ -1,0 +1,51 @@
+{
+  "name": "ShockBE ",
+  "env": {
+    "name": "BSAvgState",
+    "mu": 0.8075103023,
+    "sigma": 0.9082394473,
+    "r": 0,
+    "T": 1,
+    "dt": 0.2,
+    "V_0": 0.5,
+    "U_2": "pow",
+    "b": -2.5111844736
+  },
+  "buffer": {
+    "name": "DDPGShockBufferEstimate",
+    "m": 8
+  },
+  "general_settings": {
+    "max_episodes": 10000,
+    "max_steps": 100,
+    "batch_size": 1024,
+    "batch_size_increase": "none"
+  },
+  "ddpg": {
+    "gamma": 1,
+    "noise_decay": "linear",
+    "noise_scale": 1,
+    "tau": 0.005,
+    "tau_decay": "none",
+    "buffer_len": 20000,
+    "q": {
+      "name": "q_pow_utparametric",
+      "lr": 0.005,
+      "variables": [
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ]
+    },
+    "a": {
+      "name": "a_pow_ut1",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.1
+      }
+    }
+  }
+
+
+}
