@@ -71,6 +71,7 @@ class DDPG(CommonDDPG.DDPG):
             
             critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
             dW_t = tf.random.normal(shape=(state_batch.shape[0]+1,self.m))
+            dW_t = tf.sort(dW_t, axis=0)
 
             diff = dW_t[1:,:]-dW_t[:-1,:]
             dW_t = dW_t[:-1,:]
@@ -83,10 +84,12 @@ class DDPG(CommonDDPG.DDPG):
             t_1 = time+env.dt
             rewards= env.rw(t_1,wealth_paths)
             pd= self.dist.prob(dW_t)
+            pd_sum= tf.math.reduce_sum(pd,axis=1,keepdims=True)
             ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
             target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
-            q_next = (rewards + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape))*pd
+            q_next = (rewards + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape))*pd*diff
             q_next = tf.math.reduce_sum(q_next,axis=1,keepdims=True) #Averaged per shock_batch
+            q_next = q_next #/ pd_sum
             self.critic_loss = tf.math.reduce_mean(tf.math.square(q_next - critic_value))
            
 
