@@ -94,3 +94,8 @@ def get_runs_df(params=[],metrics=[],exp_name="",edata={}):
 #e = exp_data(r'C:\dev\rl-fn\mlruns4\mlruns')
 #df = get_runs_df(params=['buffer.name'],metrics=['A_Value_Smooth','A_Value_Ex','env.b','env.mu','env.sigma'],exp_name='511968893925570991',edata=e)
 #df
+# 
+data = exp_data(r'C:\dev\rl-fn\mlruns')
+import pickle
+with open('super_computer_2.pkl', 'wb') as f:
+        loaded_dict = pickle.dump(data,f)

@@ -12,21 +12,25 @@ pidx = 0
 pitems = []
 config_count = 0
 threads = []
+run_exp = True
+cfgs =[]
 def hypertune(level, idx, hypertune_items):
     global pidx
-    global pitems,config_count,cfg_copy,cfg
+    global pitems,config_count,cfg_copy,cfg,cfgs,run_exp
     if idx == len(hypertune_items):
         if level == 0:
             cfg_copy.pop('tune', None)
-            run_experiment.run_experiment(cfg_copy)
+            if run_exp:
+                run_experiment.run_experiment(cfg_copy)
+            cfgs.append(copy.deepcopy(cfg_copy))
             #thread = multiprocessing.Process(target= run_experiment.run_experiment,args=(cfg_copy,))
             #thread.start()
             #threads.append(thread)
             
-            print(cfg_copy)
+            #print(cfg_copy)
             config_count= config_count+1
-            print(config_count)
-            print("\n\n\n")
+            #print(config_count)
+            #print("\n\n\n")
             
         else:
             hypertune(level-1, pidx+1, pitems)
@@ -86,8 +90,22 @@ def hypertune(level, idx, hypertune_items):
                 hypertune(level, idx+1, hypertune_items)
         
 def server_hypertune(cfg_orignal):
-    global cfg_copy,cfg
+    global cfg_copy,cfg,cfg_copy,run_exp,cfgs,config_count
+    run_exp = True
+    cfgs=[]
+    config_count =0
     cfg = cfg_orignal
     cfg_copy = copy.deepcopy(cfg)
     hypertune(0, 0, cfg_copy.get('tune', []))
+
+def generate_configs(cfg_orignal):
+    global run_exp,cfg,cfg_copy,cfgs,config_count
+    cfgs=[]
+    run_exp = False
+    cfg = cfg_orignal
+    config_count =0
+    cfg_copy = copy.deepcopy(cfg)
+    hypertune(0, 0, cfg_copy.get('tune', []))
+    return cfgs
+
     

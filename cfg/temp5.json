@@ -28,7 +28,7 @@
     "noise_scale": 1,
     "tau": 0.005,
     "tau_decay": "linear",
-    "buffer_len": 20000,
+   "buffer_len": 20000,
     "q": {
       "name": "q_pow_utparametric",
       "lr": 0.005,
