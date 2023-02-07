@@ -1,5 +1,5 @@
 {
-    "name": "Episodes analysis",
+    "name": "Time steps analysis BSSE",
     "env": {
       "name": "BSAvgState",
       "mu": 0.16,
@@ -39,7 +39,7 @@
         ]
       },
       "a": {
-        "name": "a_log_ut1",
+        "name": "a_pow_ut1",
         "lr": 0.001,
         "variables": {
           "m": 0.1
