@@ -9,7 +9,7 @@ import plotly.express as px
 import mlflow_util
 
 
-_,_,df = data_utils.get_all_data(False)
+_,df = data_utils.get_all_data_dash(False)
 print(df.columns)
 
 app = Dash(__name__)
@@ -47,7 +47,10 @@ app.layout = html.Div([
         'backgroundColor': 'rgb(210, 210, 210)',
         'color': 'black',
         'fontWeight': 'bold'
-    }
+    },
+     style_cell_conditional=[
+            {'if': {'column_id': c},
+                'display': 'None',} for c in ['exp_id','run_id']]
 
     
     ),
@@ -97,13 +100,16 @@ def create_time_series(dff,  title,val=0):
     Output('ALoss', 'figure'),
     Input('datatable-interactivity', 'derived_virtual_data'),
     Input('datatable-interactivity', "derived_virtual_selected_rows"),
+    Input('datatable-interactivity', "selected_rows"),
     prevent_initial_call=True,
 )
-def updateASmooth(virtual_data,selected_data):
+def updateASmooth(virtual_data,selected_data,row_i):
     d = pd.DataFrame.from_records([{'step' : 0,'value':0,'time':0}])
-    print(len(virtual_data),selected_data)
+    print(row_i)
     if virtual_data is None:
         return html.H3('Number of selected records {}'.format(0)),create_time_series(d,'A Value Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
+    df2 = df.iloc[row_i]
+    print("DF2:",df2)
     df1 = pd.DataFrame.from_dict(virtual_data)
     rlen = df1.shape[0]
 
@@ -121,7 +127,7 @@ def updateASmooth(virtual_data,selected_data):
     A=dict.get('A_Value_Smooth',d)
     Ql=dict.get('Q loss',d)
     Al=dict.get('A loss',d)
-    return html.H3('Number of selected records {}'.format(rlen)),create_time_series(A,'A Value Smooth',exp_value),create_time_series(Ql,'Q Loss'),create_time_series(Al,'A Loss')
+    return html.H3('Number of selected records {} : RunID {}'.format(rlen,run_id)),create_time_series(A,'A Value Smooth',exp_value),create_time_series(Ql,'Q Loss'),create_time_series(Al,'A Loss')
    
 
 
