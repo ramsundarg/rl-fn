@@ -23,13 +23,14 @@ the maximum predicted value as seen by the Critic, for a given state.
 """
 
 import tensorflow as tf
-import tensorflow-probability as tfp
+
 
 import numpy as np
 import importlib
 import BSAvgState
 import CommonBuffer
 import CommonDDPG
+from statistics import NormalDist
 #from ddpg_generic import DDPGAgent
 
 class DDPG(CommonDDPG.DDPG):
@@ -41,8 +42,19 @@ class DDPG(CommonDDPG.DDPG):
         super().__init__(cfg)
         self.buffer = CommonBuffer.CommonBuffer(cfg, attr_dict)
         self.env  = BSAvgState.BSAvgState(cfg['env'])
-        tfd = tfp.distributions
-        self.dist = tf.Normal(0,1)
+        self.sdt = tf.sqrt(self.env.dt)
+        
+        n=self.m
+        self.n = n
+        self.z = np.array([NormalDist(0,self.sdt).inv_cdf((n+1+i)/(2*(n+1))) for i in range(-n,n+1)])
+        self.dP_v =  (self.env.mu - 0.5*self.env.sigma**2)*self.env.dt + self.env.sigma* self.z
+        self.pd_v=  (np.vectorize(NormalDist(0,self.sdt).pdf))(self.z)
+        self.diff_orig = [0]+[self.z[i+1]-self.z[i] for i in range(len(self.z)-1)]
+        
+        self.diff = tf.tile([self.diff_orig],[cfg['general_settings']['batch_size'],1])
+        self.dW_t = tf.cast(tf.tile([self.z],[cfg['general_settings']['batch_size'],1]),tf.float32)
+        self.dP =  tf.cast(tf.tile([self.dP_v],[cfg['general_settings']['batch_size'],1]),tf.float32)
+        self.pd=  tf.cast(tf.tile([self.pd_v],[cfg['general_settings']['batch_size'],1]),tf.float32)
 
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_tuple):
@@ -70,18 +82,30 @@ class DDPG(CommonDDPG.DDPG):
         with tf.GradientTape() as tape:
             
             critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
-            dW_t = tf.random.normal(shape=(state_batch.shape[0]+1,self.m))
-
-            diff = dW_t[1:,:]-dW_t[:-1,:]
-            dW_t = dW_t[:-1,:]
             
-            action= tf.repeat(action_batch,dW_t.shape[1],axis=1)
-            wealth = tf.repeat(state_batch[:,0],dW_t.shape[1],axis=1)
-            time = tf.repeat(state_batch[:,1],dW_t.shape[1],axis=1)
-            wealth_paths = env.VU(state_batch,action_batch,dW_t) #shape : (s,z)
+            if self.dW_t.shape[0]!= state_batch.shape[0]: # Can happen if batch sizes change over episodes
+                self.diff = tf.tile([self.diff_orig],[state_batch.shape[0],1])
+                self.dW_t = tf.cast(tf.tile([self.z],[state_batch.shape[0],1]),tf.float32)
+                self.dP =  tf.cast(tf.tile([self.dP_v],[state_batch.shape[0],1]),tf.float32)
+                self.pd=  tf.cast(tf.tile([self.pd_v],[state_batch.shape[0],1]),tf.float32)
+
+                
+            dW_t = self.dW_t
+            diff = self.diff
+            dP=self.dP
+            pd=self.pd
+            
+            
+                
+            
+            
+            action= tf.cast(tf.repeat(action_batch,dW_t.shape[1],axis=1),tf.float32)
+            wealth = tf.cast(tf.repeat(tf.reshape(state_batch[:,1],[-1,1]),dW_t.shape[1],axis=1),tf.float32)
+            time = tf.cast(tf.repeat(tf.reshape(state_batch[:,0],[-1,1]),dW_t.shape[1],axis=1),tf.float32)
+            wealth_paths = env.VU(wealth,action,dP) #shape : (s,z)
             t_1 = time+env.dt
-            rewards= env.r(t_1,wealth_paths)
-            pd= self.dist.prob(dW_t)
+            rewards= env.rw(t_1,wealth_paths)
+            
             ns =  tf.stack([tf.cast(t_1,tf.float32),wealth_paths],axis=2)
             target_actions = aN.mu(ns, 'target') #The dimensions is a big array of [state_buffer_size * shock_batch_size,1]
             q_next = (rewards + tf.reshape(qN.q_mu([ns,target_actions], 'target'),wealth_paths.shape))*pd*diff

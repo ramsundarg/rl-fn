@@ -124,11 +124,10 @@ class BSAvgState(gym.Env):
 
         return self._get_obs(), reward, done, dP
 
-    def VU(self,s,a1,z):
-        dP = (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*tf.sqrt(self.dt)*z
+    def VU(self,v,a,dP):
         return v*tf.exp(((1-a)*self.r*self.dt) +a*dP +  0.5*a*(1-a)*self.dt*(self.sigma**2))
 
-    def r(self,t_1,Vu):
+    def rw(self,t_1,Vu):
         done = tf.cast(t_1 >= self.T,tf.float32)
         return  (done)*self.U_2(Vu)
 
