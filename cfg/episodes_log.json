@@ -1,0 +1,82 @@
+{
+    "name": "Episodes analysis",
+    "env": {
+      "name": "BSAvgState",
+      "mu": 0.16,
+      "sigma": 0.8,
+      "r": 0,
+      "T": 1,
+      "dt": 0.2,
+      "V_0": 0.5,
+      "U_2": "np.log",
+      "b": 0.5
+    },
+    "buffer": {
+      "name": "DDPG",
+      "m": 8
+    },
+    "general_settings": {
+      "max_episodes": 10000,
+      "max_steps": 100,
+      "batch_size": 1024,
+      "batch_size_increase": "linear"
+    },
+    "ddpg": {
+      "gamma": 1,
+      "noise_decay": "linear",
+      "noise_scale": 1,
+      "tau": 0.005,
+      "tau_decay": "none",
+      "buffer_len": 20000,
+      "q": {
+        "name": "q_log_utparametric",
+        "lr": 0.005,
+        "variables": [
+          0.1,
+          0.2,
+          0.1,
+          0.1
+        ]
+      },
+      "a": {
+        "name": "a_pow_ut1",
+        "lr": 0.001,
+        "variables": {
+          "m": 0.1
+        }
+      }
+    },
+    "tune": {
+      "buffer.name": {
+        "list": [
+          "DDPGShockBuffer"
+        ]
+      },
+      "general_settings.max_episodes" :
+      {
+        "list" : [ 20000,40000,80000]        
+      },
+      "group":[
+        {
+          "env.mu": 0.019536,
+          "env.sigma": 0.377183,
+          "env.b": -4.27475
+        },
+        {
+          "env.b": -8.381621,
+          "env.sigma": 0.57196,
+          "env.mu": 0.063219
+        },
+        {
+          "env.mu": 0.25028,
+          "env.sigma": 0.9821,
+          "env.b": 0.73907
+        },
+        {
+          "env.mu": 0.4199,
+          "env.sigma": 0.77398,
+          "env.b": -1.9844
+        }]
+      
+    }
+  }
