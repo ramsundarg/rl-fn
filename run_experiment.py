@@ -83,6 +83,7 @@ def policy(sampled_actions, noise_object,factor=1,scale=1):
 
     # We make sure action is within bounds
     legal_action = np.clip(sampled_actions, -1, 1)
+    legal_action = sampled_actions
 
     return [np.squeeze(legal_action)]
 

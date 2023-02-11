@@ -50,7 +50,7 @@ def metrics_data(exp_id,run_id,path=r'C:\dev\rl-fn\mlruns'):
     metric_data = metric_dict_full(os.path.join(run_folder, 'metrics'))
     return metric_data
     pass
-def exp_data(path=r'C:\dev\rl-fn\mlruns_2\mlruns'):
+def exp_data(path=r'C:\dev\rl-fn\mlruns'):
     exp_dict = {}
 
     for exp_name in next(os.walk(path))[1]:
@@ -115,7 +115,3 @@ def get_runs_df_all(params=[],metrics=[],exp_name="",edata={}):
 #df = get_runs_df(params=['buffer.name'],metrics=['A_Value_Smooth','A_Value_Ex','env.b','env.mu','env.sigma'],exp_name='511968893925570991',edata=e)
 #df
 # 
-#data = exp_data(r'C:\dev\rl-fn\mlruns')
-#import pickle
-#with open('super_computer_3.pkl', 'wb') as f:
- #       loaded_dict = pickle.dump(data,f)

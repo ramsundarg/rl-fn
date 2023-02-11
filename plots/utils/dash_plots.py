@@ -7,15 +7,29 @@ import pandas as pd
 import data_utils
 import plotly.express as px
 import mlflow_util
+import sys 
+import os
 
+folder_name = r"c:\dev\rl-fn\mlruns"
+if (len(sys.argv))>1:
+    folder_name = sys.argv[1]
+pkl_name = os.path.join(folder_name,"local.pkl")
 
-_,df = data_utils.get_all_data_dash(False)
+_,df = data_utils.get_all_data_dash(pkl_name)
 print(df.columns)
 
 app = Dash(__name__)
 
 app.layout = html.Div([
     html.Div(id='record-statistics'),
+            dcc.Dropdown(
+            id="filter_dropdown",
+            options=[{"label": st, "value": st} for st in df.name.unique()],
+            placeholder="-Select an experiment-",
+            multi=True,
+            value=df.name.unique(),
+        ),
+    html.Div(id='table-container'),
     dash_table.DataTable(
         id='datatable-interactivity',
         columns= [{"name": i, "id": i} for i in df.columns],
@@ -71,6 +85,10 @@ def update_styles(selected_columns):
         'if': { 'column_id': i },
         'background_color': '#D2F3FF'
     } for i in selected_columns]
+def create_box_plot(df,col_name):
+    fig = px.box(df, y=col_name)
+    fig.update_layout(height=225, margin={'l': 20, 'b': 30, 'r': 10, 't': 10})
+    return fig
 
 def create_time_series(dff,  title,val=0):
     axis_type ="Linear"
@@ -94,6 +112,14 @@ def create_time_series(dff,  title,val=0):
 
     return fig
 @app.callback(
+    Output("datatable-interactivity", "data"), 
+    Input("filter_dropdown", "value")
+)
+def display_table(name):
+    dff = df[df.name.isin(name)]
+    return dff.to_dict("records")
+
+@app.callback(
     Output("record-statistics", "children"),
     Output('ASmooth', 'figure'),
     Output('QLoss', 'figure'),
@@ -112,17 +138,21 @@ def updateASmooth(virtual_data,selected_data,row_i):
     print("DF2:",df2)
     df1 = pd.DataFrame.from_dict(virtual_data)
     rlen = df1.shape[0]
-
+    if not row_i and not df1.empty:
+        return html.H3('Number of selected records {}'.format(rlen)),create_box_plot(df1,'A_Value_Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
     if len(selected_data)==0:
         return html.H3('Number of selected records {}'.format(rlen)),create_time_series(d,'A Value Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
+    print("Row:",row_i, df1.empty)
+
+
     df1= df1.iloc[selected_data]
     exp_id = df1.iloc[0]['exp_id']
     run_id = df1.iloc[0]['run_id']
     exp_value= df1.iloc[0]['A_Value_Ex']
     dict = {}
     if exp_id != '-1':
-        dict = mlflow_util.metrics_data(exp_id,run_id)
-    print("Reached this callback")
+        dict = mlflow_util.metrics_data(exp_id,run_id,folder_name)
+    
     
     A=dict.get('A_Value_Smooth',d)
     Ql=dict.get('Q loss',d)

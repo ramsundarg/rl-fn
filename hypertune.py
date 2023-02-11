@@ -12,7 +12,7 @@ pidx = 0
 pitems = []
 config_count = 0
 threads = []
-run_exp = True
+run_exp = False
 cfgs =[]
 def hypertune(level, idx, hypertune_items):
     global pidx
@@ -22,6 +22,8 @@ def hypertune(level, idx, hypertune_items):
             cfg_copy.pop('tune', None)
             if run_exp:
                 run_experiment.run_experiment(cfg_copy)
+            else:
+                print(cfg_copy)
             cfgs.append(copy.deepcopy(cfg_copy))
             #thread = multiprocessing.Process(target= run_experiment.run_experiment,args=(cfg_copy,))
             #thread.start()
@@ -38,7 +40,7 @@ def hypertune(level, idx, hypertune_items):
         return
 
     
-    if (list(hypertune_items)[idx]) == "group":
+    if (list(hypertune_items)[idx]).startswith("group"):
         for el in list(hypertune_items.values())[idx]:
             pidx = idx
             pitems = hypertune_items

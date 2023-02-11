@@ -1,5 +1,5 @@
 {
-    "name": "Time step log analysis",
+    "name": "Time step analysis",
     "env": {
       "name": "BSAvgState",
       "mu": 0.16,
@@ -76,7 +76,24 @@
           "env.mu": 0.4199,
           "env.sigma": 0.77398,
           "env.b": -1.9844
-        }]
+        }
+      ],
+      "group_2" :
+      [
+        {
+        "ddpg.q.name" : "q_log_utparametric",
+        "env.U_2" : "np.log",
+        "name": "Time step analysis -Log"
+        },
+        {
+          "ddpg.q.name" : "q_pow_utparametric",
+          "env.U_2" : "pow",
+          "name": "Time step analysis -Pow"
+          }
+      
+      ]
+
+
       
     }
   }
