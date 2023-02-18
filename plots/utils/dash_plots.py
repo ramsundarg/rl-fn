@@ -10,7 +10,7 @@ import mlflow_util
 import sys 
 import os
 
-folder_name = r"c:\dev\rl-fn\mlruns"
+folder_name = r"c:\dev\rl-fn\mlruns_sc\mlruns"
 if (len(sys.argv))>1:
     folder_name = sys.argv[1]
 pkl_name = os.path.join(folder_name,"local.pkl")
@@ -139,7 +139,9 @@ def updateASmooth(virtual_data,selected_data,row_i):
     df1 = pd.DataFrame.from_dict(virtual_data)
     rlen = df1.shape[0]
     if not row_i and not df1.empty:
-        return html.H3('Number of selected records {}'.format(rlen)),create_box_plot(df1,'A_Value_Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
+        df1["AbsLoss"] = (abs(df1['A_Value_Smooth']-df1['A_Value_Ex'])).clip(0,upper=1)
+        df1["SignedLoss"] = (df1['A_Value_Smooth']-df1['A_Value_Ex']).clip(-1,1)
+        return html.H3('Number of selected records {}'.format(rlen)),create_box_plot(df1,'Accuracy'),create_box_plot(df1,'AbsLoss'),create_box_plot(df1,'SignedLoss')
     if len(selected_data)==0:
         return html.H3('Number of selected records {}'.format(rlen)),create_time_series(d,'A Value Smooth'),create_time_series(d,'Q Loss'),create_time_series(d,'A Loss')
     print("Row:",row_i, df1.empty)

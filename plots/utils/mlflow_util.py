@@ -1,6 +1,7 @@
 #### Get MLFLOW data
 
 import os
+import pickle
 import yaml
 import pandas as pd
 import json
@@ -34,7 +35,7 @@ def metric_dict_full(path):
     return metrics_dict
 
 def config_json(path):
-    if os.path.exists(path) == False:
+    if os.path.exists(os.path.join(path, 'cur_cfg.txt')) == False:
             return {}
     with open(os.path.join(path, 'cur_cfg.txt'), 'r') as file:
             return json.load(file)
@@ -52,6 +53,11 @@ def metrics_data(exp_id,run_id,path=r'C:\dev\rl-fn\mlruns'):
     pass
 def exp_data(path=r'C:\dev\rl-fn\mlruns'):
     exp_dict = {}
+    loaded_dict = {}
+    if os.path.exists(os.path.join(path,"local.pkl")):
+            with open(os.path.join(path,"local.pkl"), 'rb') as f:
+                loaded_dict = pickle.load(f)
+    
 
     for exp_name in next(os.walk(path))[1]:
         folder_name = os.path.join(path, exp_name)
@@ -64,6 +70,9 @@ def exp_data(path=r'C:\dev\rl-fn\mlruns'):
         exp['runs'] = {}
         run = exp['runs']
         for i,run_dir in enumerate(os.listdir(folder_name,)):
+            if loaded_dict.get(exp_name,{}).get('runs',{}).get(run_dir,{}):
+                run[run_dir]=loaded_dict[exp_name]['runs'][run_dir]
+                continue
             run_folder = os.path.join(folder_name, run_dir)
             if os.path.isdir(run_folder)==False:
                 continue
@@ -101,6 +110,7 @@ def get_runs_df_all(params=[],metrics=[],exp_name="",edata={}):
         for run in exp['runs']:
             run_dict = {}
             run_dict['exp_id']=exp_key
+            
             run_dict['run_id']=run
             for p in params:
                 run_dict[p] = exp['runs'][run]['param'].get(p,'')
@@ -109,6 +119,8 @@ def get_runs_df_all(params=[],metrics=[],exp_name="",edata={}):
                     run_dict[m] = exp['runs'][run]['metrics'].get(m,'').item()
                 elif m in exp['runs'][run]['metrics'].keys():
                     run_dict[m]= exp['runs'][run]['metrics'][m].item()
+                else:
+                    run_dict[m] = float("nan")
             runs.append(run_dict)
     return pd.DataFrame.from_records(runs)
 #e = exp_data(r'C:\dev\rl-fn\mlruns4\mlruns')

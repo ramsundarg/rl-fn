@@ -105,7 +105,7 @@ class DDPG(CommonDDPG.DDPG):
 
 
     # We compute the loss and update parameters
-    def learn(self):
+    def learn(self,episode):
         # Get sampling range
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
         temp = self.buffer.get_batch(['shock'],self.m,False)

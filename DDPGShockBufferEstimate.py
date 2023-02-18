@@ -37,12 +37,14 @@ class DDPG(CommonDDPG.DDPG):
         # Number of "experiences" to store at max
         self.cfg = cfg
         self.m = cfg['buffer']['m']
+        self.m_decay = cfg['buffer'].get('decay',"none")
         attr_dict = { 'state'  : 2 , 'action' : 1 , 'reward' : 1 , 'next_state' : 2, 'shock' : 1} # Value of each key correponds to dimensions (shape) of the attribute 
         super().__init__(cfg)
         self.buffer = CommonBuffer.CommonBuffer(cfg, attr_dict)
         self.env  = BSAvgState.BSAvgState(cfg['env'])
         self.sdt = tf.sqrt(self.env.dt)
-        
+        self.episode = 0
+
         n=self.m
         self.n = n
         self.z = np.array([NormalDist(0,self.sdt).inv_cdf((n+1+i)/(2*(n+1))) for i in range(-n,n+1)])
@@ -54,6 +56,7 @@ class DDPG(CommonDDPG.DDPG):
         self.dW_t = tf.cast(tf.tile([self.z],[cfg['general_settings']['batch_size'],1]),tf.float32)
         self.dP =  tf.cast(tf.tile([self.dP_v],[cfg['general_settings']['batch_size'],1]),tf.float32)
         self.pd=  tf.cast(tf.tile([self.pd_v],[cfg['general_settings']['batch_size'],1]),tf.float32)
+        self.changeM = False
 
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_tuple):
@@ -81,6 +84,19 @@ class DDPG(CommonDDPG.DDPG):
         with tf.GradientTape() as tape:
             
             critic_value = qN.q_mu([state_batch, action_batch], 'actual') #Dimensions state_batch_size
+            
+            if self.changeM:
+                n=self.n
+                self.z = np.array([NormalDist(0,self.sdt).inv_cdf((n+1+i)/(2*(n+1))) for i in range(-n,n+1)])
+                self.dP_v =  (self.env.mu - 0.5*self.env.sigma**2)*self.env.dt + self.env.sigma* self.z
+                self.pd_v=  (np.vectorize(NormalDist(0,self.sdt).pdf))(self.z)
+                self.diff_orig = [0]+[self.z[i+1]-self.z[i] for i in range(len(self.z)-1)]
+                
+                self.diff = tf.tile([self.diff_orig],[state_batch.shape[0],1])
+                self.dW_t = tf.cast(tf.tile([self.z],[state_batch.shape[0],1]),tf.float32)
+                self.dP =  tf.cast(tf.tile([self.dP_v],[state_batch.shape[0],1]),tf.float32)
+                self.pd=  tf.cast(tf.tile([self.pd_v],[state_batch.shape[0],1]),tf.float32)
+                self.changeM = False
             
             if self.dW_t.shape[0]!= state_batch.shape[0]: # Can happen if batch sizes change over episodes
                 self.diff = tf.tile([self.diff_orig],[state_batch.shape[0],1])
@@ -135,11 +151,19 @@ class DDPG(CommonDDPG.DDPG):
         else:
             aN.custom_update(self)
 
-
+        if self.m_decay != "none":
+            if (self.episode % 100)==0:
+                print(self.episode)
+                dN = int(self.n * 0.2)
+                self.n = max(20,self.n-dN)
+                self.changeM = True    
+                
 
     # We compute the loss and update parameters
-    def learn(self):
+    def learn(self,episode):
+
         # Get sampling range
+        self.episode = self.episode+1
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
         super().learn(attr_dict)
 

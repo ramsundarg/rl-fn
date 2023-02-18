@@ -19,8 +19,15 @@ def get_all_data_dash(pkl_name=r"c:\dev\mlruns\local.pkl"):
     with open(pkl_name, 'rb') as f:
         loaded_dict = pickle.load(f)
     data = mlflow_util.get_runs_df_all(params=['name','buffer.name','env.U_2','ddpg.tau_decay'],metrics=['A_Value_Smooth','A_Value_Ex','env.b','env.mu','env.sigma','general_settings.max_episodes','ddpg.noise_scale','env.dt','A_Value_Variance'],exp_name='511968893925570991',edata=loaded_dict)
+    data = data[data['A_Value_Ex'].isnull()==False]
     data['Error'] = (abs(data['A_Value_Smooth']-data['A_Value_Ex'])/data['A_Value_Ex']).clip(0,1)
     data['Accuracy'] = 1- data['Error']
+    data["DDPG_Version"] = "DDPG"
+    data["DDPG_Version"].loc[data["buffer.name"]=="DDPGShockBuffer"] = "ShockBuffer"
+    data["DDPG_Version"].loc[data["buffer.name"]=="DDPGShockBufferEstimate"] = "Estimate"
+    data.drop(columns="buffer.name")
+    cols = ['name','exp_id','run_id','Accuracy','A_Value_Variance','A_Value_Ex','A_Value_Smooth','DDPG_Version','env.U_2','ddpg.tau_decay','env.b','env.mu','env.sigma','general_settings.max_episodes','ddpg.noise_scale','env.dt']
+    data = data[cols]
 
     return loaded_dict,data
 

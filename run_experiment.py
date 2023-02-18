@@ -9,7 +9,7 @@ import gym
 import tensorflow as tf
 from tensorflow.keras import layers
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 import pandas as pd
 from collections.abc import MutableMapping
@@ -97,7 +97,7 @@ def trainer(cfg):
     
     total_episodes = cfg['general_settings']['max_episodes']
     buffer_lib = importlib.import_module('{}'.format(cfg['buffer']['name']))
-    buffer = getattr(buffer_lib, "DDPG")(cfg)
+    ddpg = getattr(buffer_lib, "DDPG")(cfg)
     env_lib = importlib.import_module('{}'.format(cfg['env']['name']))
     env = getattr(env_lib, cfg['env']['name'])(cfg['env'])
     tau_decay = (cfg['ddpg'].get('tau_decay',"none")=="linear")
@@ -110,41 +110,45 @@ def trainer(cfg):
         while True:
     
             tf_prev_state = tf.expand_dims(tf.convert_to_tensor(prev_state), 0)
-            sampled_actions = tf.squeeze(buffer.aN.mu(tf_prev_state,'actual'))
+            sampled_actions = tf.squeeze(ddpg.aN.mu(tf_prev_state,'actual'))
 
             factor = cfg['ddpg'].get('noise_decay',1)
             if factor == "linear":
                 factor = (total_episodes-ep)*1.0/total_episodes
+            
+            
                 
             action = policy(sampled_actions, ou_noise,factor,cfg['ddpg'].get('noise_scale',1))
             # Recieve state and reward from environment.
             state, reward, done, info = env.step(action)
     
-            buffer.record((prev_state, action, reward, state,info))
+            ddpg.record((prev_state, action, reward, state,info))
             episodic_reward += reward
     
-            buffer.learn()
+            ddpg.learn(ep)
             if tau_decay:
-                buffer.update_tau((total_episodes-ep)*1.0/total_episodes)
+                ddpg.update_tau((total_episodes-ep)*1.0/total_episodes)
 
             # End this episode when `done` is True
             if done:
                 break
     
             prev_state = state
-            a_vals[ep%1000]=buffer.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy() 
+            a_vals[ep%1000]=ddpg.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy() 
         if ep%100==0:
             mlflow.log_metric("Factor",factor,ep)
-            mlflow.log_metric("A_Value",buffer.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy(),ep)
+            mlflow.log_metric("A_Value",ddpg.aN.mu(np.expand_dims([0,cfg['env']['V_0']], axis=0),'target').numpy(),ep)
             mlflow.log_metric("A_Value_Smooth",np.mean(a_vals),ep)
             mlflow.log_metric("A_Value_Variance",np.var(a_vals),ep)
-            mlflow.log_metric("A loss",buffer.actor_loss.numpy(),ep)
-            mlflow.log_metric("Q loss",buffer.critic_loss.numpy(),ep)
+            mlflow.log_metric("A loss",ddpg.actor_loss.numpy(),ep)
+            mlflow.log_metric("Q loss",ddpg.critic_loss.numpy(),ep)
+            if cfg['buffer'].get('decay',"none") != "none":
+                mlflow.log_metric("Cur_M_Size",ddpg.n,ep)
             
     log_param("q_variables", [x.numpy() for x in list(
-        itertools.chain(*buffer.qN.get_all_variables()))])
+        itertools.chain(*ddpg.qN.get_all_variables()))])
     log_param("a_variables", [x.numpy() for x in list(
-        itertools.chain(*buffer.aN.get_all_variables()))])
+        itertools.chain(*ddpg.aN.get_all_variables()))])
     mlflow.log_param("Accuracy",(np.mean(a_vals)/cfg['A_Value_Ex']))
     
 
