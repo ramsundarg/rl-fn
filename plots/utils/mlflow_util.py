@@ -112,9 +112,9 @@ def get_runs_df_all(params=[],metrics=[],exp_name="",edata={}):
             run_dict['exp_id']=exp_key
             
             run_dict['run_id']=run
-            for p in params:
+            for p in exp['runs'][run]['param']:
                 run_dict[p] = exp['runs'][run]['param'].get(p,'')
-            for m in metrics:
+            for m in exp['runs'][run]['metrics']:
                 if isinstance(exp['runs'][run]['metrics'].get(m,''),pd.DataFrame):
                     run_dict[m] = exp['runs'][run]['metrics'].get(m,'').item()
                 elif m in exp['runs'][run]['metrics'].keys():

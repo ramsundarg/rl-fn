@@ -45,6 +45,7 @@ app.layout = html.Div([
         selected_rows=[],
         page_action="native",
         page_current= 0,
+        export_format="csv",
         page_size= 50,
 
     style_data={
