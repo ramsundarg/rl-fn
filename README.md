@@ -20,25 +20,20 @@
 
 ## Prerequisites
 
-- npm >=5.5.0
-- node >=9.3.0
+Please check requirements.tx
 
 ## Install
-
-```sh
-npm install
-```
-
-## Usage
 
 ```sh
 conda create --name <env> --file requirements.txt
 ```
 
-## Run tests
+## Usage
 
 ```sh
-npm run test
+First create a configuration  for your experiement. Some samples are provided in cfg directory.  Then use the following command.
+python run_all.py cfg\EnvSearchAll.json #To run the experiement (along with tunable hyperparameters mentioned in it)
+
 ```
 
 ## Author
@@ -59,7 +54,3 @@ Give a ⭐️ if this project helped you!
 ## 📝 License
 
 Copyright © 2023 [Ramsundar Govindarajan](https://github.com/ramsundarg).<br />
-This project is [MIT](https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE) licensed.
-
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
