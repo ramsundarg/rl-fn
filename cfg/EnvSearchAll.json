@@ -1,0 +1,127 @@
+{
+  "name": "Env Search BSSE - Log Large M",
+  "env": {
+    "name": "BSAvgState",
+    "mu": 0.16,
+    "sigma": 0.8,
+    "r": 0,
+    "T": 1,
+    "dt": 0.2,
+    "V_0": 1.0,
+    "U_2": "np.log",
+    "b": 0.5
+  },
+  "buffer": {
+    "name": "DDPGShockBufferEstimate",
+    "m": 20
+  },
+  "general_settings": {
+    "max_episodes": 3000,
+    "max_steps": 100,
+    "batch_size": 1024,
+    "batch_size_increase": "none"
+  },
+  "ddpg": {
+    "gamma": 1,
+    "noise_decay": "linear",
+    "noise_scale": 1,
+    "tau": 0.005,
+    "tau_decay": "linear",
+    "buffer_len": 20000,
+    "q": {
+      "name": "q_log_utparametric",
+      "lr": 0.005,
+      "variables": [
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ]
+    },
+    "a": {
+      "name": "a_pow_ut1",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.1
+      }
+    }
+  },
+  "tune": {
+    "group_1": [
+
+ 
+      {
+        "env.mu": 0.23737101361557725,
+        "env.sigma": 1.0048704179044534,
+        "env.b": 0.503018055216911
+      },
+      {
+        "env.mu": 0.20261990239394137,
+        "env.sigma": 1.0447429481718902,
+        "env.b": 0.6564968997340355
+      },
+      {
+        "env.mu": 0.5464067365555404,
+        "env.sigma": 1.0354252945936626,
+        "env.b": 0.30501129662156856
+      },
+      {
+        "env.mu": 0.5425347217852817,
+        "env.sigma": 1.0019706964474069,
+        "env.b": -1.0636386372599258
+      },
+      {
+        "env.mu": 0.7431537647799725,
+        "env.sigma": 1.0016422720386842,
+        "env.b": -1.3508350370965712
+      },
+      {
+        "env.mu": 0.7361147823203853,
+        "env.sigma": 1.0365921755768368,
+        "env.b": -0.8606752148221819
+      },
+      {
+        "env.mu": 0.5411136281171003,
+        "env.sigma": 0.947831665724011,
+        "env.b": 0.23364138107474197
+      },
+      {
+        "env.mu": 0.5176871864689012,
+        "env.sigma": 0.9304262042997948,
+        "env.b": -0.641349062191729
+      },
+      {
+        "env.mu": 0.33673175184868437,
+        "env.sigma": 0.5096354636255346,
+        "env.b": -4.163660828790813
+      },
+      {
+        "env.mu": 0.3251489907875631,
+        "env.sigma": 0.5274984348519979,
+        "env.b": -3.191078271373968
+      },
+      {
+        "env.mu": 0.24649884055850252,
+        "env.sigma": 0.30714433534565866,
+        "env.b": -7.266641920231034
+      },
+      {
+        "env.mu": 0.22555186674047015,
+        "env.sigma": 0.3190792073179266,
+        "env.b": -1.2620649427733266
+      }
+    ],
+    "buffer.name": {
+      "list": [
+        "DDPGShockBufferEstimate"
+      ]
+    },
+    "group_2": [
+      {
+        "ddpg.q.name": "q_pow_utparametric",
+        "env.U_2": "pow",
+        "name": "Env Search All"
+      }
+    ]
+  }
+}

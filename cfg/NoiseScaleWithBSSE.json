@@ -1,0 +1,105 @@
+{
+  "name": "Noise Analysis with BSSE",
+  "env": {
+    "name": "BSAvgState",
+    "mu": 0.16,
+    "sigma": 0.8,
+    "r": 0,
+    "T": 1,
+    "dt": 0.2,
+    "V_0": 1.0,
+    "U_2": "np.log",
+    "b": 0.5
+  },
+  "buffer": {
+    "name": "DDPGShockBufferEstimate",
+    "m": 1000
+  },
+  "general_settings": {
+    "max_episodes": 2500,
+    "max_steps": 100,
+    "batch_size": 1024,
+    "batch_size_increase": "none"
+  },
+  "ddpg": {
+    "gamma": 1,
+    "noise_decay": "linear",
+    "noise_scale": 1,
+    "tau": 0.005,
+    "tau_decay": "linear",
+    "buffer_len": 20000,
+    "q": {
+      "name": "q_log_utparametric",
+      "lr": 0.005,
+      "variables": [
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ]
+    },
+    "a": {
+      "name": "a_pow_ut1",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.1
+      }
+    }
+  },
+  "tune": {
+    "buffer.name": {
+      "list": [
+        "DDPGShockBufferEstimate"
+        
+      ]
+    },
+    "group": [ {
+      "env.mu": 0.0707554958,
+      "env.sigma": 0.4677962483,
+      "env.b": 0.3971884165
+    },
+    {
+      "env.mu": 0.5711302068,
+      "env.sigma": 0.865969751,
+      "env.b": -8.9908607716
+    },
+    {
+      "env.mu": 0.4127531674,
+      "env.sigma": 0.8444669953,
+      "env.b": -0.4455790416
+    },
+    {
+      "env.mu": 0.1080852071,
+      "env.sigma": 0.3729959113,
+      "env.b": -3.7584424702
+    },
+    {
+      "env.mu": 0.4909375563,
+      "env.sigma": 0.8000076487,
+      "env.b": -2.7442092584
+    },
+    {
+      "env.mu": 0.1342879122,
+      "env.sigma": 0.7960515383,
+      "env.b": -0.7069575405
+    }],
+    "group_2" :
+    [
+      {
+      "ddpg.q.name" : "q_log_utparametric",
+      "env.U_2" : "np.log",
+      "name": "Noise Analysis with BSSE"
+      },
+      {
+        "ddpg.q.name" : "q_pow_utparametric",
+        "env.U_2" : "pow",
+        "name": "Noise Analysis with BSSE"
+        }
+    
+    ],
+    "ddpg.noise_scale" :
+    {
+      "list" : [ 0.1,10]
+    }
+  }
+}
