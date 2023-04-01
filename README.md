@@ -1,9 +1,7 @@
 <h1 align="center">Welcome to rl-fn 👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
-  <img src="https://img.shields.io/badge/npm-%3E%3D5.5.0-blue.svg" />
-  <img src="https://img.shields.io/badge/node-%3E%3D9.3.0-blue.svg" />
-  <a href="https://github.com/kefranabg/readme-md-generator#readme" target="_blank">
+  <a href="https://github.com/ramsundarg/rl-fn#readme" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
   <a href="https://github.com/kefranabg/readme-md-generator/graphs/commit-activity" target="_blank">
