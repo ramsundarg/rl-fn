@@ -1,0 +1,76 @@
+
+<!doctype html>
+
+
+<head><title>Test</title> 
+    <meta charset=utf-8> </head>
+    <body>
+        <h1>Run simulation</h1>
+        <h3> {{ id }}</h3>
+        
+    
+    <script>
+    
+        const valor = {
+          "name": "Log function with derivable parameters and not parametric variables",
+          "env": {
+            "name": "BSEnv",
+            "mu": 0.045,
+            "sigma": 0.3,
+            "r": 0,
+            "T": 1,
+            "dt": 0.2,
+            "V_0": 100,
+            "U_2": "np.log",
+            "b": 0.5
+          },
+           "buffer": {
+            "name": "NewBuffer"
+          },
+          "general_settings": {
+            "max_episodes": 10000,
+            "max_steps": 100,
+            "batch_size": 2048
+          },
+          "ddpg": {
+            "gamma": 1,
+            "tau": 0.005,
+            "buffer_len": 10000000,
+            "q": {
+              "name": "q_log_utparametric",
+              "lr": 0.005,
+              "variables": [
+                0.1,
+                0.2,
+                0.1,
+                0.1
+              ]
+            },
+            "a": {
+              "name": "a_pow_ut1",
+              "lr": 0.001,
+              "variables": {
+                "m": 0.1
+              }
+            }
+          }
+        }
+
+         
+    </script>
+
+        <form name="Run simulation" id="yourTextBox" action="/handle_data" method=post>
+        <p><textarea id="output1" name="op1" cols="100" rows="35"></textarea></p>
+        <p><input type="submit" value="Submit"></p>
+        </form>
+
+        <script>
+                    document.getElementById('output1').innerHTML = JSON.stringify(valor, null, 4);
+        </script>
+        
+        
+</head>
+<body>
+
+
+    </body>

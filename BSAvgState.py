@@ -81,7 +81,8 @@ class BSAvgState(gym.Env):
             else:
                 dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt),size=(count))
             return (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
-        
+    def generate_returns_given_variate(self,dW_t):
+        return (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
     def peek_steps(self, state,action,count):
         """Execute one time step within the environment
 
@@ -109,19 +110,26 @@ class BSAvgState(gym.Env):
         :params action (float): investment in risky asset
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
-        self.dP = self.generate_random_returns(1).ravel()
+        dP = self.generate_random_returns(1).ravel()
         
         # Wealth process update via simulation of the exponent
-        self.V_t = self.V_t *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), self.dP)
+        self.V_t = self.V_t *self.wealth_update(self.r, self.mu, self.sigma, self.dt, np.array(action), dP)
         self.t += self.dt
 
         done = self.t >= self.T
         reward = (done)*self.U_2(self.V_t)
 
         # Additional info (not used for now)
-        info = {}
+        info = dP
 
-        return self._get_obs(), reward, done, info
+        return self._get_obs(), reward, done, dP
+
+    def VU(self,v,a,dP):
+        return v*tf.exp(((1-a)*self.r*self.dt) +a*dP +  0.5*a*(1-a)*self.dt*(self.sigma**2))
+
+    def rw(self,t_1,Vu):
+        done = tf.cast(t_1 >= self.T,tf.float32)
+        return  (done)*self.U_2(Vu)
 
 
     def _get_obs(self):

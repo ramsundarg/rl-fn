@@ -42,21 +42,7 @@
   "tune": {
     "general_settings.max_episodes": {
       "list": [
-        5000,
-        10000,
-        100000
-      ]
-    },
-      "general_settings.batch_size": {
-      "low": 512,
-      "step": 512,
-      "high": 2050
-    },
-    "general_settings.batch_size_increase": {
-      "list": [
-        "i",
-        "np.sqrt(i)"
-      ]
+        5000, 10000, 100000  ]
     },
     "group": [
       {
@@ -65,32 +51,16 @@
             {  "name": "q_log_utparametric" }           
           ]
         },
-        "env.U_2": {
-          "list": [
-            "math.log"
-          ]
+        "env.U_2": {"list": ["math.log"]
         }
       },
       {
         "ddpg.q": {
           "list": [
-            {
-              "name": "q_pow_utparametric",
-              "lr": 0.001,
-              "variables": [
-                0.1,
-                0.2,
-                0.1,
-                0.1
-              ]
-            }
+            {"name": "q_pow_utparametric" }
           ]
         },
-        "env.U_2": {
-          "list": [
-            "utility_functions.power_utility"
-          ]
-        },
+        "env.U_2": { "list": ["utility_functions.power_utility" ]},
         "env.mu": {
           "list": [
             0.09

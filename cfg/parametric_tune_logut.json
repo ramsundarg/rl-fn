@@ -1,0 +1,109 @@
+{
+  "name": "Parametric power utility function (discoverable constant action) HyperTuning ",
+  "env": {
+    "name": "BSEnv",
+    "mu": 0.09,
+    "sigma": 0.6,
+    "r": 0.0,
+    "T": 1.0,
+    "dt": 0.2,
+    "V_0": 1,
+    "U_2": "pow_ut",
+    "b" : 0.5
+    
+  },
+  "general_settings": {
+    "max_episodes": 5000,
+    "max_steps": 100,
+    "batch_size": 2048,
+    "batch_size_increase": "0"
+  },
+  "ddpg": {
+    "gamma": 1,
+    "tau": 0.01,
+    "buffer_len": 100000,
+    "action_noise_damp": 1.0,
+    "q": {
+      "name": "q_log_utparametric",
+      "lr": 0.001,
+      "variables": [
+        0.1,
+        0.2,
+        0.1,
+        0.1
+      ]
+    },
+    "a": {
+      "name": "a_pow_ut1",
+      "lr": 0.001,
+      "variables": {
+        "m": 0.1
+      }
+    }
+  },
+  "tune": {
+    
+    "group": [
+      
+      {
+        "env.V_0": {
+          "list": [
+            0.5,
+            "np.random.uniform(0.5,1.5)"
+          ]
+        }
+      },
+      {
+        "general_settings.max_episodes": {
+          "list": [
+            5000,
+            10000,
+            50000
+          ]
+        }
+      },
+      {
+        "general_settings.batch_size_increase": {
+          "list": [
+            "i",
+            "np.sqrt(i)"
+          ]
+        }
+      },
+      {
+        "general_settings.batch_size": {
+          "low": 512,
+          "step": 512,
+          "high": 5000
+        }
+      },
+      {
+        "env.b": {
+          "list": [
+            0.8,
+            1.0,
+            -1.0,
+            -0.8
+          ]
+        }
+      },
+      {
+        "ddpg.action_noise_damp": {
+          "list": [
+            0.99,
+            0.999
+          ]
+        }
+      },
+      {
+        "env.dt": {
+          "list": [
+            0.2,
+            0.02
+          ]
+        }
+      }
+
+    ]
+  }
+}
