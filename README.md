@@ -20,7 +20,7 @@
 
 ## Prerequisites
 
-Please check requirements.tx
+Please check requirements.txt
 
 ## Install
 
