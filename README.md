@@ -27,9 +27,9 @@ conda create --name <env> --file requirements.txt
 ```
 
 ## Usage
-
+First create a configuration  for your experiement. Some samples are provided in cfg directory.  Then use the following command
 ```sh
-First create a configuration  for your experiement. Some samples are provided in cfg directory.  Then use the following command.
+
 python run_all.py cfg\EnvSearchAll.json #To run the experiement (along with tunable hyperparameters mentioned in it)
 
 ```
