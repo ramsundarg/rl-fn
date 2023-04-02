@@ -1,12 +1,10 @@
 <h1 align="center">Welcome to rl-fn 👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
-  <img src="https://img.shields.io/badge/npm-%3E%3D5.5.0-blue.svg" />
-  <img src="https://img.shields.io/badge/node-%3E%3D9.3.0-blue.svg" />
-  <a href="https://github.com/kefranabg/readme-md-generator#readme" target="_blank">
+  <a href="https://github.com/ramsundarg/rl-fn#readme" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
-  <a href="https://github.com/kefranabg/readme-md-generator/graphs/commit-activity" target="_blank">
+  <a href="https://github.com/ramsundarg/rl-fn/graphs/commit-activity" target="_blank">
     <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
   </a>
   <a href="https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE" target="_blank">
@@ -16,29 +14,24 @@
 
 > A DDPG based solution for portfolio optimization that uses specific function classes for actor and critic parts of DDPG instead of neural networks. There are also customized implementations of DDPG (DDPGShockBufferand DDPGShockBufferEstimate)  that improve accuracy as they build better estimates of the expected Q values  of future states. This is a configurable framework where any combination of Q and A can be plugged and played (defined in the folders Qn and An). The environment also can be redefined or configured by editing the BSAvgState file. There is a tunable configuration to experiment with different classes of experiments. Finally there are utilites to plot, visualize the results
 
-### 🏠 [Homepage](https://github.com/kefranabg/readme-md-generator#readme)
+### 🏠 [Homepage](https://github.com/ramsundarg/rl-fn)
 
 ## Prerequisites
 
-- npm >=5.5.0
-- node >=9.3.0
+Please check requirements.txt
 
 ## Install
-
-```sh
-npm install
-```
-
-## Usage
 
 ```sh
 conda create --name <env> --file requirements.txt
 ```
 
-## Run tests
-
+## Usage
+First create a configuration  for your experiement. Some samples are provided in cfg directory.  Then use the following command
 ```sh
-npm run test
+
+python run_all.py cfg\EnvSearchAll.json #To run the experiement (along with tunable hyperparameters mentioned in it)
+
 ```
 
 ## Author
@@ -59,7 +52,3 @@ Give a ⭐️ if this project helped you!
 ## 📝 License
 
 Copyright © 2023 [Ramsundar Govindarajan](https://github.com/ramsundarg).<br />
-This project is [MIT](https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE) licensed.
-
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
