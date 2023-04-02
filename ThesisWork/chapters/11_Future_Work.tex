@@ -1,0 +1,105 @@
+
+\chapter{Conclusion and Future Work}\label{chapter:11_Future_Work}
+In this final brief chapter, we summarize the results we obtained in the previous Chapter \ref{chapter:Results}, and recommend our best models we observed in our experiments. We finally conclude by listing some of the future work that could be done extending this framework to other class of problems and some improvements that could be made to the existing software architecture.
+
+\section{Conclusion}
+
+
+Based on the results we obtained in the previous chapter, we noticed that the most important factor for improving the accuracy and robustness of our results was to improve the estimation for the expectation defined in Equation \ref{eq:BMO1}. This can be achieved by increasing the shock buffer batch size in Shock Buffer and number of grid points in Estimates (commonly referred as $m$ in both the methods). Increasing the number of episodes was the next most important factor that increased the accuracy, especially observed in Shock Buffer and DDPG. Adaptive $\tau$ also marginally improved the accuracy in our experiments.  These results are further summarized in Table \ref{table:summary}.
+
+In this sense, we recommend both Shock Buffer, and Estimates as our preferred algorithms. The configuration described in Section \ref{section:rs} (for both methods) yielded the most promising results in our experiments. However, we also believe that one could achieve even better accuracy and convergence speed by further increasing the factor $m$. 
+
+
+\begin{table}
+\begin{tabular}{ ||p{2cm}|p{2cm}|p{3cm}|p{7cm}||  } 
+ \hline
+ \hline
+\textbf{Parameter}& \textbf{Impact} &\textbf{DDPG Version}&\textbf{Comment}\\
+ \hline
+ Stable estimate for expectation (\ref{eq:BMO1})   & High    &  Shock Buffer and Estimates & Computing stable estimates of expectation in the Bellman equation has a very positive impact on the accuracy. \\
+ \hline
+   Number of grid points   & High    &  Estimates & Increasing partitions to find the expected value of future Q values has a very positive effect on accuracy.\\
+ \hline
+  
+   Batch size of log returns   & High    &  Shock Buffer & Increasing batch size of log shock returns to find the expected value of future Q values has a very positive effect on accuracy.\\
+   \hline
+   Batch size of state, action tuples   & Medium    &  All & Increasing batch size increases accuracy but only up to a level. Adaptive batch size marginally improves accuracy.\\
+   \hline
+   \tau   & Medium    &  All & Adaptive $\tau$ marginally improves accuracy, and convergence.\\
+  \hline
+   Noise scale   & Low    &  All & Did not significantly improve accuracy.\\
+   \hline
+    Number of episodes & Medium & All & \textbf{Estimates}: Did not impact accuracy after a rapid and an early converging level. \linebreak
+    \textbf{Shock Buffer}: Impacted the accuracy considerably.  \\
+    \hline
+    Model parameters & None & All & Did not markedly notice domains of model parameters that impacted performance or convergence time.\\
+    \hline
+    Time discretization \Delta t & High & All & Accuracy and convergence time is proportional to \Delta t. \\
+    
+ \hline
+ 
+\end{tabular}
+\caption{\label{table:summary}Summary of results - Qualitative analysis}
+\end{table}
+\pagebreak
+\section{Future Work}
+Our study was very theoretical in which we generated observations from a model distribution. It was also a very simplistic problem with just 1 risky and 1 riskless asset. The utility functions we considered were also designed in such a way that the optimal allocation strategy could be explicitly derived and were independent from the time horizon in the experiments. The model distribution itself was very simple - a Black Scholes model with known mean and variance of the risky asset. The riskless rate was also assumed to be 0.
+
+So considering all the discussed simplifications it is very obvious the tremendous scope and expansion of the current effort.
+\begin{itemize}
+    \item \textbf{Model Distribution}
+    
+    First of all we can build a slightly more complex environment. For instance instead of a Black Scholes environment, we can use a Heston environment \cite{Heston1993} where the volatility of the risky asset changes over time. There is also no limit on extending the environment by adding more parameters and increasing the complexity of the environment.
+    \item \textbf{Empirical Data}
+    
+    We did not use actual returns that were observed in real markets to generate our optimal actions. A problem with using empirical real data is that we have only one realization. We can also build a capital market model and generate complex forward looking simulations of assets based on such a model. The problem with having such complex models is that our actor and critic may no longer be expressive and accurate enough to capture the underlying model.
+    
+    \item \textbf{Actor and Critic }
+
+    Our actor and critic were actually parametrized versions of the theoretical values of Q and A values respectively. In essence, we almost supplied the exact answer to our experiments and just caliberated the parameters in those functions using DDPG. There are various improvements that can be done in this setting.
+    \begin{itemize}
+        \item \textbf{Generic expected forms of the solution}
+
+        In many cases, we cannot find out or find out only numeric solutions of Q and A value functions. They are the real applications of this setting as we can feed in forms of our expected solution without explictly stating the actual form. The challenge then will be to understand if indeed the final solution is the optimal solution and also arriving at the generic form itself may be a challenge.
+
+        \item \textbf{Generic forms with neural network}
+
+        We can start off with the same set up as in the previous case, but infer the parameters of the generic function using deep neural networks. In addition to the usual performance related challenges,  convergence time, simulations needed, architecture of the neural network and other neural network related problems such as regularization, over fitting etc. are some of the other factors one must consider.
+
+        \item \textbf{Mismatched functions}
+
+        We can deliberately try to give mismatched functions to Q and A value functions and then understand how those functions capture information.
+    \item \textbf{Multi-asset setting}
+
+    We only discussed a simple setting with 1 risky asset in this problem. We can easily extend this to a multi-asset problem with a possibly time-changing correlation matrix between them. Such a setting would further challenge the robustness and the scalability of the developed algorithms.
+    
+    \item \textbf{Utility functions}
+
+    We considered only 2 utility functions which are concave in the problem domain and functions in which the optimal action values were independent of the time axis. We can relax these rigid assumptions and can conduct further studies on many other utility functions.
+    \end{itemize}
+    \item \textbf{Software Architecture}
+
+    The proposed architecture also could be improved, with better visualization, tracking and deployment suites. Most of what we implemented were custom built and tightly coupled with what we needed. A more thorough study on each of these aspects can be made.
+    \begin{itemize}
+        \item 
+    
+    \textbf{Distributed deployment} 
+    
+    We did not build any deployment pipelines over the cloud such as having a managed kubernetes cluster. Such a deployment could widely improve our abilities to conduct vast number of experiments over the problem domain
+    \item \textbf{DAG for tensorflow}
+    
+    We did not exploit lazy evaluation and constructing directed acyclic graphs in tensorflow to speed up our computation. This would result in a major performance improvement in terms of speed.
+
+    
+    \item \textbf{Tensorboard} 
+    
+    We used MLFLow to track our experiments. We could have experimented with other visualization tools such as tensorboard \cite{tensorboard} and build better visualization charts.
+
+    
+    \item \textbf{Testing} 
+    
+    Our ML model is not integrated with any test suite to generate test cases and  check the validity of our experiments. Going forward this could be one crucial piece to quickly prototype and implement new features while conducting regression tests \cite{howden1978} on the validity of existing functionalities. 
+  
+    \end{itemize}
+    
+\end{itemize}

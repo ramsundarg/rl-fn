@@ -1,0 +1,178 @@
+\chapter{DDPG Setup and Actor-Critic }\label{chapter:ExperimentSetup}
+Before we present our version, DDPGFunctions, in this chapter we consider the broad set up for our DDPG solution. We specify the tuple - input state, action,  rewards and future states in the context of portfolio optimization. 
+In the remainder of the chapter we dive deep into the actor, critic function classes  we have used in our experiments for log and power  utility functions.
+
+
+
+
+\section{DDPG Setup} 
+ \subsection{Recap}
+ Let us first restate the portfolio optimization problem below. 
+ 
+ \begin{equation}
+    (\mathbf{P_t}) \begin{cases}
+     \Phi(t,V) = \underset{\pi \in \Lambda}{\textit{sup }}\mathbb{ E}[U(V^{v_0,\pi}(T)) | V^{v_0,\pi}(t)=V]
+     \end{cases}
+ \end{equation}
+The formulation of Q-learning is considered throughout this project, and DDPG in particular, rely on the fact that the control-process for the dynamic optimization problem is a discrete sequence of clearly separable actions \cite{RL_ArtInt_268}. As ($\textbf{P}_t$) is formulated as dynamic optimization problem with continuous-time
+controls in equation (\ref{equation:reduced_Po}), we need to formulate an appropriate time-discretization version of it.
+
+ We restrict the investor’s ability to change his relative portfolio allocation $\pi$ only at a discrete series of time-points
+ $0=t_0<t_1<..<t_n=T \quad \text{with } t_i = i\frac{T}{n} = i\Delta t$\quad for i =0,...,n.    
+
+ The set of admissible and discretized portfolio processes $\pi$ can then be characterized as    
+ $$\Lambda^{\Delta t} = \Big\{\pi^{\Delta t} = (\pi_i)_{i=0,...,(n-1)} | \pi_i = \pi(t_i,\cdot) : (0,\infty) \rightarrow \mathbb{R}, \pi^{\Delta t} \in \Lambda , i=0,...,(n-1)\Big\}.$$\\
+The discretized version of ($\mathbf{P}_\mathbf{t}$) can now be defined as 
+
+ \begin{equation}\label{equation:pot}
+    (\mathbf{P}^{\Delta t}_{t_i})\begin{cases} \Phi^{\Delta t}(t_i,v) = \underset{\pi \in \Lambda^{\Delta t}}{\textit{sup }}\mathbb{ E}[U(V^{v_0,\pi}(T)) | V^{v_0,\pi}(t_i)=v],\end{cases}
+\end{equation}
+where $\pi^{\Delta t}$ is shortened as $\pi$ for ease of exposition.
+\subsection{Setup}
+Given this discretized version, ($\mathbf{P}_{t_i}^{\Delta t}$) of $P_t$ we can embed ($\mathbf{P}^{\Delta t}_{t_i}$) into a deep Q-learning framework with:
+
+\begin{itemize}
+    \item The state space $S = \{t_1,..,T\} \times (0,\infty)$, where the first component is time and the second component represents investor's wealth.
+    \item The action space defined as the admissible values for the relative portfolio process, i.e. $A = \mathbb{R}$.
+    \item The action sequences defined as the discretized relative portfolio
+processes, i.e. $a = \pi \textrm{ for } \pi \in \Lambda^{\Delta t}$
+    \item The wealth updates according to a wealth update process in the continuous space as specified below.
+    \begin{equation}
+    \begin{array}{l@{}l}
+     v_{i+1}=V^{v_0,\pi}(t_{i+1})  &{}= \underbrace{V^{v_0,\pi}(t_{i})}_{=:v_i}\exp(\int_{t_i}^{t_{i+1}} r_c + (\mu-r_c)\pi(s,V^{v_0,\pi}(s)) -\frac{1}{2}(\sigma \pi ( s, V^{v_0,\pi}(s))^2 ds \\
+     &{}+\int_{t_i}^{t_{i+1}} \pi(s,V^{v_0,\pi}(s))\sigma dW(s) )\\
+     &{}= v_i \exp \left ( r_c+ (\mu-r_c)\pi(t_i,v_i)  -\frac{1}{2}\left(\sigma \pi (t_i,v_i)\right)^2 \Delta t + \pi((t_i,v_i))\sigma \Delta W_{t_{i+1}}\right )
+    \end{array}
+    \end{equation}
+    where $\Delta W_{t_{i+1}} \backsim \mathcal{N}(0,\Delta t)$
+    
+    Using the risky asset log returns, $\Delta P_{t_{i+1}}=ln\left(\frac{P_1(t_{i+1})}{P_1(t_{i})}\right)$, we may alternatively write$$v_{i+1} = v_{i} \exp \left ( (1-\pi(t_i,v_{i+1})r_c \Delta t+ \pi(t_i,v_i)\Delta P_{t_{i+1}}+\frac{1}{2}\sigma^2\pi(t_i,v_i)(1-\pi(t_i,v_i))\Delta t  \right)$$
+    \item The reward function defined as 
+    \begin{equation}
+        r(s,a,s')     = r\left((t_i,v_i),\pi(t_i,v_i),(t_i+\Delta t,v_{i+1})\right)=   
+                    \begin{cases}
+                    0  \textrm{, if }t_i +\Delta t \neq T  \\
+                    U(v_{i+1}) \textrm{, if }t_i +\Delta t = T \\
+\end{cases}
+    \end{equation}
+    
+\end{itemize}
+ For setting up the actor and critic, we use specific function classes for log and power utility functions. For these functions, the true critic and the actor can be computed in closed form. We present the results in the following section.
+
+ \section{Log Utility Function}
+For the log utility function $U(v) = log(v)$, the optimal action $a^*$ (correspondingly the optimal allocation $\pi^*$) (see Remark 3.1 in \cite{FernandezKschonnek2022}) is \\
+
+\begin{equation}\label{optimallog}
+a^*(t,v) = \pi^* = \frac{\mu-r_c}{\sigma^2}.
+\end{equation}
+
+The optimal action is independent of time and wealth. Hence, rather than learning $\mu$, $r$, $\sigma$ directly, we may parametrize $a^* \approx a^{\phi}$ as
+
+\begin{equation}\label{optimalaplog}
+a^\phi(t,v) = \pi^* = \phi \quad \text{ for some } \phi \in \mathbb{R}.
+\end{equation}
+
+The value function $\Phi$ (see Remark 3.1 in \cite{FernandezKschonnek2022}) is given as
+
+\begin{equation}\label{logUEquation}
+\Phi(t,v)  = \log(v) + \left[r_c + \frac{1}{2}\left(\frac{\mu-r_c}{\sigma}\right)^2(T-t) \right]    .
+\end{equation}
+
+The Q-Value function can then be derived (see Lemma 3.4 in \cite{FernandezKschonnek2022}) as
+
+\begin{equation}\label{OptQLog}
+    \begin{array}{l@{}l}
+Q(t_i,v,a) 
+    &{}= \log(v) + (r_c + (\mu-r_c)a -\frac{1}{2}\sigma^2a^2)\Delta t + (r_c+\frac{1}{2}(\frac{\mu-r_c}{\sigma})^2)(T-t_{i+1}) 
+   
+    
+\end{array}
+\end{equation}
+Again, rather than learning $\mu$, $r_c$, $\sigma$ directly, we can identify Q as a quadratic function in $a$ with parameters $\theta_0,\theta_1,\theta_2,\text{and } \theta_T$ such that
+
+\begin{equation}\label{paramlog}
+\begin{array}{l@{}l}
+Q(t_i,v,a) = \log(v) + (\theta_0 + \theta_1a + \theta_2a^2)\Delta t + \theta_T(T-t_{i+1}).
+\end{array}
+\end{equation}
+
+ \section{Power Utility Function}
+For the power utility function $U(v) = \frac{1}{v}v^b$, the optimal action $a^*$ (correspondingly the optimal allocation $\pi^*$) (see Remark 3.1 in \cite{FernandezKschonnek2022}) is \\
+
+\begin{equation}\label{optimalpow}
+a^*(t,v) = \pi^* = \frac{\mu-r_c}{(1-b)\sigma^2}
+\end{equation}
+
+The optimal action is independent of time and wealth. Hence rather than learning $\mu$, $r$, $\sigma$ directly, we may parametrize $a^* \approx a^{\phi}$ as
+
+\begin{equation}\label{optimalappow}
+a^\phi(t,v) = \pi^* = \phi \quad \text{ for some } \phi \in \mathbb{R}
+\end{equation}
+
+The value function $\Phi$ (see Remark 3.1 in \cite{FernandezKschonnek2022}) is given as
+
+\begin{equation}\label{powUEquation}
+\Phi(t,v)  = \frac{1}{b}v^b \exp \left( \left(br_c + \frac{1}{2}\left(\frac{\mu-r_c}{\sigma}\right)^2\frac{b}{1-b} \right)(T-t) \right).
+\end{equation}
+
+The Q- Value function can be derived (see Lemma 3.5 in \cite{FernandezKschonnek2022}) as
+\begin{multline}\label{OptQPow}
+Q(t_i,v,a) = \frac{1}{b}v^b\exp\left( b\left[r_c +  \frac{(\mu-r_c)^2}{2(1-b)\sigma^2}\right](T-t_{i+1})\right) \\
+\exp\left(\left\left[br_c + b(\mu-r_c)a + \frac{1}{2}b(b-1)\sigma^2 a^2)\right]\Delta t\right)
+\end{multline}
+
+Again, rather than learning $\mu$, $r_c$, $\sigma$ directly, we can identify Q as an exponentially quadratic function in $a$, with parameters $\theta_0,\theta_1,\theta_2,\text{and } \theta_T$ such that
+
+\begin{equation}\label{parampow}
+\begin{array}{l@{}l}
+Q(t_i,v,a) = \frac{1}{b}v^b\exp \left( (\theta_0 + \theta_1a + \theta_2a^2)\Delta t + \theta_T(T-t_{i+1}) \right).
+\end{array}
+\end{equation}
+
+ \section{Function classes for Actor and Critic}
+ Based on the Q-value and a-value functions that we have defined for the utility functions, we can build different configurations of actor and critic. We summarize some of the possible configurations in Table \ref{table:actor_critic}. \\
+\begin{table}
+\begin{tabular}{ ||p{2cm}||p{2cm}|p{2cm}|p{2cm}|p{4cm}|p{2cm}||  } 
+\hline\hline
+
+\textbf{Case}&\textbf{Utility Function}& \textbf{Actor} & \textbf{Learnable Parameters} &\textbf{Critic}& \textbf{Learnable parameters}\\
+ \hline
+ (i) &Log   & $\frac{\mu-r_c}{\sigma^2}$    & None & (\ref{OptQLog})& $\mu$ and $\sigma$ \\ \hline
+  (ii) &Log   & $\frac{\mu-r_c}{\sigma^2}$&$\mu$ and $\sigma$&  (\ref{OptQLog}) & $\mu$ and $\sigma$ \\
+  \hline
+    (iii) &Log   & $\phi$    & $\phi$  & (\ref{paramlog})& $\theta_0, \theta_1, \theta_2$ \text{ and } $\theta_T$   \\
+  \hline
+  (i) &Power   & $\frac{1}{1-b}\frac{\mu-r_c}{\sigma^2}$    & None & ($\ref{OptQPow}) $& $\mu$ and $\sigma$ \\
+ \hline
+ (ii) &Power   & $\frac{1}{1-b}\frac{\mu-r_c}{\sigma^2}$    & $\mu$ and $\sigma$ & $(\ref{OptQPow}) $& $\mu$ and $\sigma$ \\
+ \hline
+ (iii) &Power   & $\phi$   & $\phi$ & $(\ref{parampow}) $& $\theta_0, \theta_1, \theta_2$ \text{ and } $\theta_T$   \\
+ \hline
+  
+\end{tabular}
+\caption{\label{table:actor_critic}Actor critic functions}
+
+ \end{table}
+ 
+We can use the previously defined parametrizations of actor and critic derived for log and power utility functions in three natural ways:
+
+\begin{itemize}
+\item
+\begin{enumerate}[(i)]
+    
+
+
+    \item Learn the market parameters $\mu$ and $\sigma$ through the calibration of the critic and pass them on directly to the actor
+    \item Learn the market parameters $\mu$ and $\sigma$ simultaneously through the calibration of the actor and critic
+    \item Learn the structural parameters $\phi,\theta_0, \theta_1, \theta_2, \text{and } \theta_T$ simultaneously through the calibration of the actor and critic 
+
+\end{enumerate}
+\item Alternatively one could still consider choosing more generic function classes, such as neural networks, in such a way that structural properties of the optimization problem are still retained. This can be very useful as many utility functions settings are complex and explicit solutions for Q functions may not be found. However we might still expect some structural form of the final solution.
+
+    
+\end{itemize}
+
+
+
+
+

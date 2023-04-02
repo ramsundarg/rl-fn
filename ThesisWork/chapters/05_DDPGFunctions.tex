@@ -1,0 +1,177 @@
+
+\chapter{DDPGFunctions}\label{chapter:DDPGFuncs}
+    In this chapter, we present a version of DDPG, which is implemented and set up from scratch with customizable functions for the actor and critic. We detail the pseudocode of our first version of our algorithm called DDPGFunctions and discuss the 4 main components of the algorithm
+\begin{itemize}
+    \item Event loop
+    \item Environment
+    \item Replay Buffer
+    \item DDPG with actor and critic
+\end{itemize}
+
+We then summarize the methodology by going over some of the features of the algorithm.
+
+\end{itemize}
+
+\section{Algorithm}
+
+There are 4 major components in the algorithm. To describe them completely, we first go over the main event loop, where the experiments progress.  We then describe the individual components in the event loop and drill deep into each one of the components to understand the whole picture.
+
+\subsection{Event Loop}
+
+This is the main driver of the algorithm where the agent  interacts with the environment in an episodic way. At the beginning of every episode, the agent begins with a wealth $v_0$ , and is invested in a basket of a risky and riskless asset. Based on the action learned by the agent, the allocations change over time between the 2 assets. The agent (i.e the investor) obtains a reward $r$ at the end of an episode which ends at time $T$. The goal of a whole experiment is to maximize the expected utility of the agents wealth at time $T$. The pseudo code of what happens in an episode is described below.
+
+\begin{algorithm}
+\caption{Event loop}\label{alg:eventloop}
+\begin{algorithmic}[1]
+\Require $total\_episodes \geq 100$
+\State $ddpg \gets DDPG$
+\State $actor \gets Actor $
+\State $critic \gets Critic$
+\State $buffer \gets ReplayBuffer$
+\State $env \gets Enviroment$
+\State $settings \gets Settings$
+\State $ep \gets 0$
+\State $noiseFactor \gets 1$
+\While{$ep <= total\_episodes$}
+    \State $currentState \gets env.reset$
+    \While{TRUE}
+    \State $action \gets actor.\phi^{actual} (currentState)$ \label{el:aN}
+    \State $action \gets Policy(action,settings.NoiseScale,settings.Factor)$ \Comment{See Algorithm \ref{alg:policy}}
+    \State $nextState,reward,isDone \gets env.step(currentState,action)$ \label{el:rb}
+    \State $buffer.record (nextState,reward,isDone) $
+    \State  $ddpg.learn()$
+    \If {decayTau}
+        \State $ddpg.updateTau((total\_episodes-ep)/total\_episodes)$
+    \EndIf
+    \If{isDone} 
+        \State BREAK
+    \EndIf
+     \State $currentState \gets nextState$
+    \State Record metrics
+    \EndWhile
+\EndWhile
+
+\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+    \caption{Policy for optimal action}\label{alg:policy}
+    \begin{algorithmic}[1]
+    \Require
+        \Statex $action,scale,factor \gets Action,Scale,Factor$
+    \Statex
+        \State $noise \gets Noise\_object$ \Comment{Could be OU or Gaussian process (config based)}
+        \State  $policy\_action = action + scale*factor*noise$
+        \State \Return $policy\_action$ 
+    \end{algorithmic}
+\end{algorithm}
+
+Most of the pseudocode is very self explanatory. At line number \ref{el:aN}, one can see that the optimal action for the state is selected. Then, based on a policy, a certain level of noise is added to the optimal action. This controls the exploration part of the DDPG algorithm. There is a replay buffer that records all the experiences in line \ref{el:rb} (again described more in Section  \ref{subsection:replaybuffer} ). The DDPG's learning method, "learn",  then updates the optimal Q and A values for both the actual and the target network respectively. We finally record metrics to be used for tracking and visualizing results.
+
+
+\subsection{Environment}
+The environment itself is a custom discrete-time Black-Scholes environment with one risky-asset and bank account. The environment simulates the evolution of the investor's portfolio according to
+a discrete version of the wealth SDE. The interesting function 'step' is explained in the following pseudocode.
+
+\begin{algorithm}
+\caption{Environment Step}\label{alg:env_step}
+\begin{algorithmic}[1]
+\Require $State,action$ 
+\State $v \gets State.GetWealth()$
+\State $t \gets State.GetTime()$
+\State $\Delta W \gets $ Generate standard normal variable
+\State $\Delta P \gets (\mu - 0.5\sigma^2)\Delta t + \sigma     \sqrt{\Delta t} \Delta W$  \label{pc:envsT:lret}
+\State $v \gets v\exp{\left((1-action)r_c\Delta t + action \Delta P + \frac{1}{2}action(1-action)\sigma^2\Delta t)\right)}$\label{pc:envsT:vu}
+\State $t \gets t +  \Delta t$
+\State $done \gets False$ 
+\If{t = T} 
+    \State $reward \gets Utility(v)$
+    \State $done \gets True$
+\Else
+
+    \State $reward \gets 0$
+\EndIf
+
+\State \Return $(t,v),reward,done$
+\end{algorithmic}
+\end{algorithm}
+
+ At line \ref{pc:envsT:lret}, one can see the log returns of the risky asset being generated. The wealth of the portfolio is then updated at line \ref{pc:envsT:vu} ,  (see wealth dynamics, \cite{Zagst2019} [Inv. Strategies script (by Prof. Zagst) Theorem 2.18}]. The reward is only obtained at the end of the episode. For all other time steps, the reward is 0. The utility function can either be a log or power utility function in our experiments.
+
+\subsection{Replay Buffer}\label{subsection:replaybuffer}
+The replay buffer records experiences in a preset container of fixed size and evicts experiences when the buffer becomes full. The DDPG component samples random experiences from this buffer and learns the optimal Q-and a-value functions.  Each observation has to be independent of each other and the replay buffer provides a way of sampling independent observations. Otherwise, sampling the last N observations will make the observations highly correlated to each other and gradient descent would not work on those scenarios.
+
+The replay buffer can support numerous eviction policies. Some common policies used are 
+
+\begin{itemize}
+    \item FIFO - Oldest experiences are evicted out in this policy.
+    \item MRU - Most recently used experiences can be evicted out. This would give a chance to sample from unused observations by evicting out already used observations.
+\end{itemize}
+
+\subsection{DDPG}
+The DDPG module is invoked by the event loop to update the value of Q and A parameters on every step.  In DDPGFunctions, the main steps of the update function are detailed in the following pseudocode.
+
+
+
+DDPG as we have established is an off policy algorithm - in that sense, the policy that is being learned at every iteration  is not the policy used to make decisions to traverse to the next state in terms of portfolio allocation. This can be seen in the way there are 2 sets of parameters presented in the algorithm \ref{alg:ddpg_update} - actual and target. The target is in fact here, a slow moving version of the actual parameters that are both being updated at every step - $\tau$ being the factor that controls this learning. Another implementation specific comment on the algorithm is that since we do not necessarily use neural networks, we had to customize the backpropagation step of gradients by exposing an API in both the Q-value function and the a-value function, that would transmit the trainable variables. The implementation can then be generic to include any parametrized function(even a neural network) so long as we can get a list of trainable variables. 
+
+
+An highlight of our implementation, is that the different modules in the update step are loosely coupled to each other - which helps us to experiment with different configurations. The critic and actor are both external to DDPG and can be the different implementations we have talked about in the Chapter \ref{chapter:ExperimentSetup}. Also, we provide hooks to have a custom actor function that can be fed in by the critic or invoke any conventional actor that can be trained.
+
+
+\begin{algorithm}
+\caption{DDPG Update}\label{alg:ddpg_update}
+\begin{algorithmic}[1]
+\State $state,action,reward,next\_state \gets ReplayBuffer.getBatch$
+\State $actor \gets Actor$
+\State $critic \gets Critic$
+
+\State \\******* Update Critic  *****\\
+\State $action^{target} \gets actor.\phi^{target}(next\_state)$ 
+\State $Q^{target}(state,action) \gets reward + critic.Q\theta^{target}(next\_state,action^{target})$
+\State $Q^{actual}(state,action) \gets critic.Q\theta^{actual}(state,action)$
+\State $criticLoss \gets (Q^{target}(state,action)- Q^{actual}(state,action))^2$
+\State $criticLossGradient \gets Gradient(criticLoss,critic.Trainablevariables)$
+\State $ApplyGradients(criticLossGradient,critic.Trainablevariables)$
+
+\State \\******* Update Actor  *****\\
+\If{$actor.needsGradientUpdate$}
+    \State $action^{actual} \gets actor.\phi^{actual}(state)$
+    \State $optimalCriticValue \gets critic.Q\theta^{actual}(state,action^{actual})$
+    \State $actorLoss \gets \sum_N optimalCriticValue $ \Comment{N is the minibatch size}
+    \State $actorLossGradient \gets Gradient(actorcLoss,actor.Trainablevariables)$
+    \State $ApplyGradients(actorLossGradient,actor.Trainablevariables)$
+\Else
+    \State $actor.applyCustomUpdate()$ \Comment{When parameters have to be passed into a non learnable actor }
+\EndIf
+
+\State \\******* Update Target Actor *****\\
+\State $action^{target},action^{actual} \gets actor.getAllVariables$
+\For {$a^{target} \in action^{target}$ and $a^{actual} \in action^{actual}$}
+        \State $a^{target} = \tau a^{actual}+(1-\tau)a^{target}$
+\EndFor
+
+
+\State \\******* Update Target Critic  *****\\
+\State $critic^{target},critic^{actual} \gets critic.getAllVariables$
+\For {$c^{target} \in critic^{target}$ and $c^{actual} \in critic^{actual}$}
+        \State $c^{target} = \tau c^{actual}+(1-\tau)c^{target}$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+\break
+
+
+\section{DDPGFunctions - Features}
+
+Our DDPGFunctions algorithm builds on top of the original DDPG solution with neural networks. We present a detailed analysis of the results of the algorithm in a later chapter. \label{chapter:Results} However in this brief section we comment on the features of our algorithm and the problems it is expected to solve.
+\begin{itemize}
+    \item \textbf{Faster simulations}: This is one of our key expectations/motivation of our algorithm. Having conventional deep layered neural network would lead to exploding run times. The problem becomes practically intractable with marginal additional complexity to the environmental set up. For example, having a 100-step simulation for 2 or more assets would by itself take weeks to converge to stable results \cite{Janik2022}. Since our functions are very simple, and the number of tunable parameters is not more than 5, convergence should be observed more rapidly.
+    \item \textbf{Accurate convergence}: In most of the experiments we conducted, the problem setting is relatively simple, where the critic and the actor parametrizations are given almost explicitly the problems they are expected to solve. Thus we expect our simulations to converge to values very close to the exact results. 
+    \item \textbf{Building custom deep networks}: We can still use the algorithm to build deep neural networks in settings where we cannot explicitly (analytically) specify the function for Q-and a- value functions. In these complex settings, we can still start off with a general form, which includes properties which the function are known or expected to have.  Then, we use deep neural networks for the parameters for that function. We can exploit the structural characteristics of the function while also including the advantages of having a neural network for modeling unknown properties.
+\end{itemize}
+
+\beg
+
+
+
+ 

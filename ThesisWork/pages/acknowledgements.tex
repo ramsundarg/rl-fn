@@ -1,0 +1,29 @@
+\makeatletter
+\ifthenelse{\pdf@strcmp{\languagename}{english}=0}
+{\addcontentsline{toc}{chapter}{Acknowledgments}}
+{\addcontentsline{toc}{chapter}{Danksagungen}}
+\makeatother
+\thispagestyle{empty}
+
+\vspace*{20mm}
+
+\begin{center}
+\makeatletter
+\ifthenelse{\pdf@strcmp{\languagename}{english}=0}
+{\usekomafont{section} Acknowledgments}
+{\usekomafont{section} Danksagungen}
+\makeatother
+\end{center}
+
+\vspace{10mm}
+
+I would like to express my sincere gratitude to Prof. Dr. Rudi Zagst from the Chair of Financial Mathematics and Prof. Dr. Martin Bichler from the Chair of Decision Sciences and Systems for giving me the chance to complete my thesis in the inter-disciplinary field of informatics and finance.
+
+I am also extremely thankful to Michel Kschonnek %TODO: Add salutation? %  
+for giving me constant support and providing me with innovative ideas. Your valuable feedback and engaging discussions were instrumental in the completion of this thesis.
+
+Finally I would also like to extend my thanks to AllianzGI for making this project possible.
+
+
+
+\cleardoublepage{}

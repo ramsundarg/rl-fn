@@ -1,0 +1,11 @@
+
+
+\makeatletter
+
+\chapter{\abstractname}
+We begin by stating the portfolio optimization problem and some of the traditional approaches used for solving it. We also mention a previous work in Reinforcement Learning (RL) and state our own project outline on how we are going to expand the work. We then start off with a short primer on RL and in particular look at an "Actor-Critic"  technique called Deep Determinisitic Policy Gradients (DDPG), which can be used to maximize rewards in a continuous setting. We state our experimental set up and also discuss  the different critic and the actor functions, we can employ in our set up. Afterwards, we then present the first version of our proposed algorithm, DDPGFunctions. We  provide a brief commentary of the system architecture of our framework, the modular components, hyper tuning framework, and the tools for tracking experiments and graphing. Understanding some potential problems with the vanilla approach we try to speed up and improve the accuracy of our results and performance in subsequent versions of DDPGFunctions - DDPGShockBuffer and DDPGEstimates. We compare our results of all these approaches against a variety of environment settings and hyper parameter configurations. In the final part of the thesis, we consider certain aspects for future work and discuss some limitations with our current approach.
+
+% Undo the name switch
+\makeatletter
+\ifthenelse{\pdf@strcmp{\languagename}{english}=0}
+{\renewcommand{\abstractname}{Abstract}}
