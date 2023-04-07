@@ -14,6 +14,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="qN.q_pow_utparametric.Q" href="qN.q_pow_utparametric.Q.html" />
+    <link rel="prev" title="DDPGShockBufferEstimate.DDPG" href="DDPGShockBufferEstimate.DDPG.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,6 +34,58 @@
             
   <div class="section" id="ddpg-ddpg">
 <h1>DDPG.DDPG<a class="headerlink" href="#ddpg-ddpg" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="DDPG.DDPG">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">DDPG.</span></span><span class="sig-name descname"><span class="pre">DDPG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#DDPG.DDPG" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>The <cite>Buffer</cite> class implements Experience Replay.</p>
+</div></blockquote>
+<p>—
+![Algorithm](<a class="reference external" href="https://i.imgur.com/mS6iGyJ.jpg">https://i.imgur.com/mS6iGyJ.jpg</a>)
+—
+<strong>Critic loss</strong> - Mean Squared Error of <cite>y - Q(s, a)</cite>
+where <cite>y</cite> is the expected return as seen by the Target network,
+and <cite>Q(s, a)</cite> is action value predicted by the Critic network. <cite>y</cite> is a moving target
+that the critic model tries to achieve; we make this target
+stable by updating the Target model slowly.
+<strong>Actor loss</strong> - This is computed using the mean of the value given by the Critic network
+for the actions taken by the Actor network. We seek to maximize this quantity.
+Hence we update the Actor network so that it produces actions that get
+the maximum predicted value as seen by the Critic, for a given state.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="DDPG.DDPG.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#DDPG.DDPG.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#DDPG.DDPG.__init__" title="DDPG.DDPG.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cfg)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">learn</span></code>(episode)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">record</span></code>(obs_tuple)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code>(attr_dict)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_target_weights</span></code>(N, tau)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_tau</span></code>(factor)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -52,15 +106,32 @@
 
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BSAvgState.BSAvgState.html">BSAvgState.BSAvgState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonBuffer.CommonBuffer.html">CommonBuffer.CommonBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonDDPG.DDPG.html">CommonDDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBuffer.DDPG.html">DDPGShockBuffer.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBufferEstimate.DDPG.html">DDPGShockBufferEstimate.DDPG</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">DDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_pow_utparametric.Q.html">qN.q_pow_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_log_utparametric.Q.html">qN.q_log_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aN.a_pow_ut1.A.html">aN.a_pow_ut1.A</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hypertune.html">hypertune</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_experiment.html">run_experiment</a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+      <li>Previous: <a href="DDPGShockBufferEstimate.DDPG.html" title="previous chapter">DDPGShockBufferEstimate.DDPG</a></li>
+      <li>Next: <a href="qN.q_pow_utparametric.Q.html" title="next chapter">qN.q_pow_utparametric.Q</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

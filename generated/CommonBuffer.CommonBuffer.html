@@ -14,6 +14,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CommonDDPG.DDPG" href="CommonDDPG.DDPG.html" />
+    <link rel="prev" title="BSAvgState.BSAvgState" href="BSAvgState.BSAvgState.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,6 +34,46 @@
             
   <div class="section" id="commonbuffer-commonbuffer">
 <h1>CommonBuffer.CommonBuffer<a class="headerlink" href="#commonbuffer-commonbuffer" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="CommonBuffer.CommonBuffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">CommonBuffer.</span></span><span class="sig-name descname"><span class="pre">CommonBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CommonBuffer.CommonBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>The common buffer base class has the following methods 1. record 2. get_batch</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="CommonBuffer.CommonBuffer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CommonBuffer.CommonBuffer.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>This initializes the replay buffer. There is no restriction on what can be stored in a replay buffer.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><p>cfg - This dictionary is the config of the experiment. See config scheme in the usage section of the docs.
+attr_dict - The parameters the buffer is used to record.</p>
+</dd>
+</dl>
+<p>Comments:</p>
+<blockquote>
+<div><p>Replay buffer is of length cfg[‘ddpg’][‘buffer_len’] for every parameter mentioned in attr_dict
+On every call during the training/update step, replay buffer samples batch_size elements and returns to the training module</p>
+</div></blockquote>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#CommonBuffer.CommonBuffer.__init__" title="CommonBuffer.CommonBuffer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(cfg, attr_dict)</p></td>
+<td><p>This initializes the replay buffer.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_batch</span></code>(attr_list[, batch_size, increase])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">record</span></code>(obs_dict)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -52,15 +94,32 @@
 
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BSAvgState.BSAvgState.html">BSAvgState.BSAvgState</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">CommonBuffer.CommonBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonDDPG.DDPG.html">CommonDDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBuffer.DDPG.html">DDPGShockBuffer.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBufferEstimate.DDPG.html">DDPGShockBufferEstimate.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPG.DDPG.html">DDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_pow_utparametric.Q.html">qN.q_pow_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_log_utparametric.Q.html">qN.q_log_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aN.a_pow_ut1.A.html">aN.a_pow_ut1.A</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hypertune.html">hypertune</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_experiment.html">run_experiment</a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+      <li>Previous: <a href="BSAvgState.BSAvgState.html" title="previous chapter">BSAvgState.BSAvgState</a></li>
+      <li>Next: <a href="CommonDDPG.DDPG.html" title="next chapter">CommonDDPG.DDPG</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

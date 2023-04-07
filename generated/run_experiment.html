@@ -14,6 +14,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="hypertune" href="hypertune.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -30,8 +31,43 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="run-experiment">
-<h1>run_experiment<a class="headerlink" href="#run-experiment" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-run_experiment">
+<span id="run-experiment"></span><h1>run_experiment<a class="headerlink" href="#module-run_experiment" title="Permalink to this headline">¶</a></h1>
+<p>Created on Mon Nov 14 09:38:02 2022</p>
+<p>&#64;author: A00006846</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten_dict</span></code>(d[, sep])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">policy</span></code>(sampled_actions, noise_object[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_experiment</span></code>(cfg)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trainer</span></code>(cfg)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">OUActionNoise</span></code>(mean, std_deviation[, theta, ...])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
@@ -52,15 +88,31 @@
 
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="BSAvgState.BSAvgState.html">BSAvgState.BSAvgState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonBuffer.CommonBuffer.html">CommonBuffer.CommonBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonDDPG.DDPG.html">CommonDDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBuffer.DDPG.html">DDPGShockBuffer.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBufferEstimate.DDPG.html">DDPGShockBufferEstimate.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPG.DDPG.html">DDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_pow_utparametric.Q.html">qN.q_pow_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_log_utparametric.Q.html">qN.q_log_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aN.a_pow_ut1.A.html">aN.a_pow_ut1.A</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hypertune.html">hypertune</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">run_experiment</a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+      <li>Previous: <a href="hypertune.html" title="previous chapter">hypertune</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

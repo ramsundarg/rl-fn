@@ -14,6 +14,8 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CommonBuffer.CommonBuffer" href="CommonBuffer.CommonBuffer.html" />
+    <link rel="prev" title="API" href="../api.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,6 +34,123 @@
             
   <div class="section" id="bsavgstate-bsavgstate">
 <h1>BSAvgState.BSAvgState<a class="headerlink" href="#bsavgstate-bsavgstate" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="BSAvgState.BSAvgState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">BSAvgState.</span></span><span class="sig-name descname"><span class="pre">BSAvgState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BSAvgState.BSAvgState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom discrete-time Black-Scholes environment with one risky-asset and bank account
+The environment simulates the evolution of the investor’s portfolio according to
+a discrete version of the wealth SDE.</p>
+<p>At the end of the investment horizon the reward is equal to U(V(T)), else zero.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="BSAvgState.BSAvgState.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BSAvgState.BSAvgState.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Params mu (float)</dt>
+<dd class="field-odd"><p>expected risky asset return</p>
+</dd>
+<dt class="field-even">Params sigma (float)</dt>
+<dd class="field-even"><p>risky asset standard deviation</p>
+</dd>
+<dt class="field-odd">Params r (float)</dt>
+<dd class="field-odd"><p>risk-less rate of return</p>
+</dd>
+<dt class="field-even">Params T (float)</dt>
+<dd class="field-even"><p>investment horizon</p>
+</dd>
+<dt class="field-odd">Params dt (float)</dt>
+<dd class="field-odd"><p>time-step size</p>
+</dd>
+<dt class="field-even">Params V_0 (float, tuple)</dt>
+<dd class="field-even"><p>initial wealth, if tuple (v_d, v_u) V_0 is uniformly drawn from [v_d, v_u]</p>
+</dd>
+<dt class="field-odd">Params U_2 (callable)</dt>
+<dd class="field-odd"><p>utility function for terminal wealth</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VU</span></code>(v, a, dP)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#BSAvgState.BSAvgState.__init__" title="BSAvgState.BSAvgState.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(env)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">params mu (float)</dt>
+<dd class="field-odd"><p>expected risky asset return</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">close</span></code>()</p></td>
+<td><p>Override close in your subclass to perform any necessary cleanup.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_random_returns</span></code>(count)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_returns_given_variate</span></code>(dW_t)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">peek_steps</span></code>(state, action, count)</p></td>
+<td><p>Execute one time step within the environment</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">power_utility</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">render</span></code>([mode, close])</p></td>
+<td><p>Compute the render frames as specified by render_mode attribute during initialization of the environment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code>()</p></td>
+<td><p>Reset the state of the environment to an initial state</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rw</span></code>(t_1, Vu)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code>(action)</p></td>
+<td><p>Execute one time step within the environment</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wealth_grid_update</span></code>(r, mu, sigma, dt, action, dP)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">wealth_update</span></code>(r, mu, sigma, dt, action, dP)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">metadata</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">np_random</span></code></p></td>
+<td><p>Returns the environment's internal <code class="xref py py-attr docutils literal notranslate"><span class="pre">_np_random</span></code> that if not set will initialise with a random seed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">render_mode</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reward_range</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">spec</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">unwrapped</span></code></p></td>
+<td><p>Returns the base non-wrapped environment.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -52,15 +171,32 @@
 
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BSAvgState.BSAvgState</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonBuffer.CommonBuffer.html">CommonBuffer.CommonBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CommonDDPG.DDPG.html">CommonDDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBuffer.DDPG.html">DDPGShockBuffer.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPGShockBufferEstimate.DDPG.html">DDPGShockBufferEstimate.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="DDPG.DDPG.html">DDPG.DDPG</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_pow_utparametric.Q.html">qN.q_pow_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qN.q_log_utparametric.Q.html">qN.q_log_utparametric.Q</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aN.a_pow_ut1.A.html">aN.a_pow_ut1.A</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hypertune.html">hypertune</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_experiment.html">run_experiment</a></li>
+</ul>
+</li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API</a><ul>
+      <li>Previous: <a href="../api.html" title="previous chapter">API</a></li>
+      <li>Next: <a href="CommonBuffer.CommonBuffer.html" title="next chapter">CommonBuffer.CommonBuffer</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>
