@@ -66,7 +66,7 @@ An experiment can be described completely in a cfg file.  A sample is described 
 
 - *env* - Refers to the enviroment parameters that can be set.
 
-   - *name* : Name of the python module that controls the environment.  Implement your own environment or add more functions to BSAvgState. BSAvgState is a black scholes enviroment and has functions that are utilized by the 3 versions of DDPG. If you need to implement a new enviroment, the most basic functions that have to be implemented are
+   - *name* - Name of the python module that controls the environment.  Implement your own environment or add more functions to BSAvgState. BSAvgState is a black scholes enviroment and has functions that are utilized by the 3 versions of DDPG. If you need to implement a new enviroment, the most basic functions that have to be implemented are
       - *reset* ()
 
       - *step* () should return the state , reward, next state and a dictionary tuple that is used by run_experiment trainer function
