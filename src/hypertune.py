@@ -4,7 +4,9 @@ import os
 import multiprocessing
 import run_experiment
 import copy
-
+"""
+The hypertunable configuration framework implementation.
+"""
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 

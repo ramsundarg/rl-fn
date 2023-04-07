@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 14 09:38:02 2022
+The main runner of the whole algorithm
 
-@author: A00006846
 """
 
 import gym
