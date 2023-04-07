@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usage &#8212; rl-fn  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Welcome to rl-fn’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>The most common way of running the project is to use the following command.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">python run_all.py cfg/&lt;cfg.json&gt;</span>
+</pre></div>
+</div>
+<div class="section" id="describing-an-experiment-in-cfg-json">
+<h2>Describing an experiment in cfg.json<a class="headerlink" href="#describing-an-experiment-in-cfg-json" title="Permalink to this headline">¶</a></h2>
+<p>An experiment can be described completely in a cfg file.  A sample is described below</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;env&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;BSEnv&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;mu&quot;</span><span class="p">:</span> <span class="mf">0.16</span><span class="p">,</span>
+      <span class="nt">&quot;sigma&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+      <span class="nt">&quot;r&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+      <span class="nt">&quot;T&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="nt">&quot;dt&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+      <span class="nt">&quot;V_0&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+      <span class="nt">&quot;U_2&quot;</span> <span class="p">:</span><span class="s2">&quot;utility_functions.power_utility&quot;</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;general_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;max_episodes&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+      <span class="nt">&quot;max_steps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+      <span class="nt">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">2048</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;ddpg&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;gamma&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="nt">&quot;tau&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+      <span class="nt">&quot;buffer_len&quot;</span><span class="p">:</span> <span class="mi">100000</span><span class="p">,</span>
+      <span class="nt">&quot;q&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;q_pow_ut&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+         <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;m&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+         <span class="nt">&quot;s&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+         <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;a&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;a_pow_ut1&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+         <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="nt">&quot;m&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+
+         <span class="p">}</span>
+      <span class="p">}</span>
+   <span class="p">},</span>
+   <span class="nt">&quot;b&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+
+
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul>
+<li><p><em>env</em> - Refers to the enviroment parameters that can be set.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt><em>name</em><span class="classifier">Name of the python module that controls the environment.  Implement your own environment or add more functions to BSAvgState. BSAvgState is a black scholes enviroment and has functions that are utilized by the 3 versions of DDPG. If you need to implement a new enviroment, the most basic functions that have to be implemented are</span></dt><dd><ul>
+<li><p><em>reset</em> ()</p></li>
+<li><p><em>step</em> () should return the state , reward, next state and a dictionary tuple that is used by run_experiment trainer function</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Completely define the variables that the enviroment will need (in the black scholes case, we needed model parameters mu and sigma). Some useful variables are dt,T,v_0 and u_2, which are generally needed to describe states in any RL framework. They are not a must by design but required in most cases.</p>
+</div></blockquote>
+</li>
+<li><p><em>general_settings</em> -  The variables that can be defined are quite self explanatory. Define these variables based on the experiment that is run. A neural network based DDPG might require more iterations than the one described above.</p></li>
+<li><dl class="simple">
+<dt><em>ddpg</em> -</dt><dd><ul class="simple">
+<li><p>gamma - The discounted reward factor that is set to 1</p></li>
+<li><p>tau - The target parameter learning rate</p></li>
+<li><p>buffer_len - The replay buffer batch_size</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>There are 2 components, the <strong>Q component that is the critic component</strong> and the <strong>actor component which is defined as a</strong>. The Q modules must be defined in qN and the actor components must be defined in aN folders respectively.  There are some samples that are already defined. They can also be reused.</p>
+<blockquote>
+<div><ul>
+<li><dl>
+<dt>Q component:</dt><dd><p>While defining a new Q component, the following function must be defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cfg</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">q_mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">arr</span><span class="p">,</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;actual&#39;</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">get_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">get_trainable_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">arr</span><span class="p">,</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;actual&#39;</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>q_mu is the actual function that returns the Q-value of state,action pair. Look at the examples provided in the sample q files to look at what the variables should return.</p>
+</dd>
+</dl>
+</li>
+<li><dl>
+<dt>A component:</dt><dd><p>It is quite similar to the Q component, the madatory functions that have to be defined are</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cfg</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">mu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">arr</span><span class="p">,</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;actual&#39;</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">get_all_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">get_trainable_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">arr</span><span class="p">,</span><span class="n">network</span><span class="o">=</span><span class="s1">&#39;actual&#39;</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>There is also a piece where you can customize if you need to custom update the actor component on every training step (if you choose to override the default behavior of DDPG that would apply the gradients to the trainable variables). To enable this you need to define a separate function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">ddpg_agent</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>and to activate this mode, you need to set a special variable self.update_actor as True. Then on each update step, DDPG will call the custom_update function instead of the usual behavior.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="ddpg-module">
+<h2>DDPG module<a class="headerlink" href="#ddpg-module" title="Permalink to this headline">¶</a></h2>
+<p>All DDPG implementations derive from a common class called CommonDDPG.py. There is the default implementation DDPG.py which covers the base case. There are some customized versions, the details of which can be found in the Thesis document in the attached project. They are defined as DDPGShockBuffer and DDPGShockBufferEstimate. In practice, choose the flavor of DDPG for the specific problem.</p>
+<p>The main functions to be re-defined while implementing your own DDPG flavor are the following. Explaining it via the DDPG implmentation method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DDPG</span><span class="p">(</span><span class="n">CommonDDPG</span><span class="o">.</span><span class="n">DDPG</span><span class="p">):</span>
+ <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cfg</span><span class="p">):</span>
+
+ <span class="c1"># Takes (s,a,r,s&#39;) obervation tuple as input</span>
+ <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs_tuple</span><span class="p">):</span>
+
+ <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+     <span class="bp">self</span><span class="p">,</span><span class="n">attr_dict</span>
+
+ <span class="p">):</span>
+
+ <span class="c1"># We compute the loss and update parameters</span>
+ <span class="k">def</span> <span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">episode</span><span class="p">):</span>
+</pre></div>
+</div>
+<p>One should initialize the replay buffer (described in the next section) in the init function.</p>
+<ul class="simple">
+<li><p>The record function gets a tuple as recorded in the env module (which can record any parameter besides the important ones state,reward, next state).  The DDPG itself can record other internal parameters along with it. All this can be stored in the replay buffer by calling the method record. The record method the replay buffer needs a dictionary with all these parameters that are stored as keys and their corresponding values as values of those keys in the dictionary. So there is complete flexibility in what can be stored as the replay buffer does not specifically search for any particular parameter.</p></li>
+<li><p>The update function is the main function of DDPG that is used to update gradients of the actor and critic components.  The attr_dict is the mini-batch and it is a dictionary with parameters and the mini batch samples of them. Look at the default definition in DDPG.py. It gives a guideline on how the gradients should be updated. Besides there are also hooks in it to call the custom actor update function defined in the previous section.</p></li>
+<li><p>The learn method is called from the run_experiment method on every training step. The method should take a mini bacth of parameters it is interested from the replay buffer. Then it must call the learn function of the base method (see the DDPG definition) which will interally call the update method defined in this class and also update the target networks as specified in the configuration.  Again there are hooks in the CommonDDPG, that will pass on the update weight of the target network to Q or A component even. The goal is to provide flexibility to almost all the steps in DDPG while having reusable components defined in the common classes.</p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">rl-fn</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#describing-an-experiment-in-cfg-json">Describing an experiment in cfg.json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ddpg-module">DDPG module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to rl-fn’s documentation!</a></li>
+      <li>Next: <a href="api.html" title="next chapter">API</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Ramsundar Govindarajan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/usage.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
