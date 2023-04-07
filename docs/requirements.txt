@@ -4,5 +4,6 @@ gym
 numpy
 mlflow
 pandas
+statistics
 
 
