@@ -22,13 +22,20 @@ class BSAvgState(gym.Env):
 
     def __init__(self, env):
         """
-        :params mu (float):         expected risky asset return
-        :params sigma (float):      risky asset standard deviation
-        :params r (float):          risk-less rate of return
-        :params T (float):          investment horizon
-        :params dt (float):         time-step size
-        :params V_0 (float, tuple): initial wealth, if tuple (v_d, v_u) V_0 is uniformly drawn from [v_d, v_u]
-        :params U_2 (callable):     utility function for terminal wealth
+        The initialization function. Note that 'env' is defined in the cfg file.
+
+
+        Parameters
+         mu (float):         expected risky asset return
+         sigma (float):      risky asset standard deviation
+         r (float):          risk-less rate of return
+         T (float):          investment horizon
+         dt (float):         time-step size
+         V_0 (float, tuple): initial wealth, if tuple (v_d, v_u) V_0 is uniformly drawn from [v_d, v_u]
+         U_2 (callable):     utility function for terminal wealth
+
+        Returns 
+         None
         """
 
         super().__init__()
@@ -68,25 +75,76 @@ class BSAvgState(gym.Env):
         
         # Action space (denotes fraction of wealth invested in risky asset, excluding short sales)
     def wealth_grid_update(self,r, mu, sigma, dt,  action, dP):
-            a = action
-            return tf.exp((1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*(sigma**2))
+        """
+        Updates a complete mini batch of (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them.
+
+        Parameters:
+            r - riskfree rate
+            mu - <not used currently , as these are implictly included in dP>
+            sigma -  volatility of the risky asset
+            dt - time step
+            action - allocation in the risky asset
+            dP - log shock retruns of the risky asset
+        
+        Returns:
+            The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
+
+        """
+        a = action
+        return tf.exp((1-a)*r*dt + tf.matmul(action,tf.transpose(dP)) + 0.5*a*(1-a)*dt*(sigma**2))
     def wealth_update(self,r, mu, sigma, dt,  action, dP):
+        """
+        Wealth updates for (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them.
+
+        Parameters:
+            r - riskfree rate
+            mu - <not used currently , as these are implictly included in dP>
+            sigma -  volatility of the risky asset
+            dt - time step
+            action - allocation in the risky asset
+            dP - log shock retruns of the risky asset
+        
+        Returns:
+            The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
+        """
+
         a = action
         return tf.exp((1-a)*r*dt + action*dP + 0.5*a*(1-a)*dt*(sigma**2))
 
     def generate_random_returns(self,count):
+            """
+                Generates a random list of log returns to be used for the risky asset.
+
+                Parameters:
+                    count - Number of shock returns needed
+
+                Returns:
+                    Count number of Shock returns.
+
+            """
             if self.pre_load:
                 dW_t = np.array(np.roll(self.rv,self.nexti)[0:count]).reshape(-1)
                 self.nexti = (self.nexti+count)%100000 # Max size of the random variates file
             else:
                 dW_t = np.random.normal(loc=0, scale=math.sqrt(self.dt),size=(count))
             return (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
+    
     def generate_returns_given_variate(self,dW_t):
+        """
+        Not used currently. Deprecated
+        """
+
         return (self.mu - 0.5*self.sigma**2)*self.dt + self.sigma*dW_t
     def peek_steps(self, state,action,count):
-        """Execute one time step within the environment
+        """ 
+            Computes the next state without actually entering into the state. It can transition into count number of states for any count >1.
 
-        :params action (float): investment in risky asset
+            Parameters:
+                (state,action) : The state,action tuple
+                count - The number of new states to compute into
+
+            Returns:
+                The tuple (state(next state,next time),reward,isTerminalState,shock returns)            
         """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
         dP = self.generate_random_returns(count)
@@ -105,10 +163,15 @@ class BSAvgState(gym.Env):
 
 
     def step(self, action):
-        """Execute one time step within the environment
-
-        :params action (float): investment in risky asset
         """
+        Execute one time step within the environment.
+        
+            Parameters:
+                action : investment in risky asset
+            
+            Returns:
+                The tuple (state(next state,next time),reward,isTerminalState,shock return involved)            
+       """
         # Update Wealth (see wealth dynamics, Inv. Strategies script (by Prof. Zagst) Theorem 2.18):
         dP = self.generate_random_returns(1).ravel()
         
@@ -125,6 +188,18 @@ class BSAvgState(gym.Env):
         return self._get_obs(), reward, done, dP
 
     def VU(self,v,a,dP):
+        """
+        Updates a complete mini batch of (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them. Very similar to the grid update but uses internal variables for the missing input.
+
+        Parameters:
+            v - Intial wealth
+            a - action 
+            dP - log shock retruns of the risky asset
+        
+        Returns:
+            The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
+
+        """
         return v*tf.exp(((1-a)*self.r*self.dt) +a*dP +  0.5*a*(1-a)*self.dt*(self.sigma**2))
 
     def rw(self,t_1,Vu):
@@ -133,10 +208,12 @@ class BSAvgState(gym.Env):
 
 
     def _get_obs(self):
+        """Internal function - Not needed """
         return np.array([self.t, self.V_t], dtype=np.float32)
 
     def reset(self):
-        """Reset the state of the environment to an initial state"""
+        """Reset the state of the environment to an initial state. Used in the beginning of every episode"""
+
         self.t = np.zeros_like(self.V_0)
         if isinstance(self.V_0, str):
             self.V_t = np.array(eval(self.V_0)).reshape(-1)
@@ -146,5 +223,8 @@ class BSAvgState(gym.Env):
         return self._get_obs()
 
     def render(self, mode='human', close=False):
+        """
+            Not used currently
+        """
         # Render the environment to the screen
         raise NotImplementedError("Use the discrete_bs_render environment for rendering")
