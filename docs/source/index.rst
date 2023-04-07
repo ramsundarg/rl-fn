@@ -12,12 +12,8 @@ Please note that this is the documentation of the repository that can be found h
 
 .. note::
 
-   This project is under maintanence.
-   
-   .qN
-   .aN
-   .
-
+   This project is under maintanence and is currently worked only sparingly.
+ 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
