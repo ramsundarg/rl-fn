@@ -11,6 +11,7 @@ class Q:
         Intializes the actor network. All the variables are very self explanatory in the initialization.
 
         Parameters:
+
             cfg - The config of the experiment. 
         """
         self.v=cfg['ddpg']['q']['variables']
@@ -29,9 +30,13 @@ class Q:
             The Q value finding function. This has to be implemented in any new Critic file. 
 
             Parameters:
+
                 arr - The state of the environment along with the polled action for that state. Typically the (wealth,time) tuple is the state in our experiments.
+
                 network - The variable that is either 'actual' or 'target' depending on the network.
+
             Returns:
+            
                 The actual Q value for the mini-batch
         """
         t = tf.cast(tf.reshape(arr[0][...,0],[-1,1]),tf.float32)

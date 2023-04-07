@@ -101,6 +101,7 @@ def server_hypertune(cfg_orignal):
         This should be called from the flask api server.
 
         Parameters:
+
             cfg_original: The config file edited in the UI in Flask
     """
     global cfg_copy,cfg,cfg_copy,run_exp,cfgs,config_count
@@ -116,6 +117,7 @@ def generate_configs(cfg_orignal):
         A helper utility to generate possible configs. The hyper tuning framework generates many configurations for an experiments.If we need to just view these configurations instead of running the experiments itself, we can invoke this function.
 
         Parameter:
+        
             cfg_original : The config file for the experiements.
 
     """

@@ -67,6 +67,7 @@ class DDPG(CommonDDPG.DDPG):
         Records an observation from the experiment runner (run_experiment.py). We need to call this method and not the replay buffer's method because we need to translate the tuple to a dictionary we are interested in keeping track and then add additional variables here that can be passed to the replay buffer.
 
         Parameters:
+        
             obs_tuple : The actual observations from the episode. The usual state,action,reward,done,info tuple generated from the BSAvgState environment.
         """
         obs_dict = { 'state' : obs_tuple[0],'action' : obs_tuple[1], 'reward' : obs_tuple[2],'next_state':  obs_tuple[3] }
@@ -84,6 +85,7 @@ class DDPG(CommonDDPG.DDPG):
             This is not called by the actual experiement runner in run_experiment.py.  The run_experiment makes a call to 'learn' method of this class instead. The learn method then calls the CommonDDPG.learn method, which in turn calls this update method. This workflow can be improved. But it is left as it is to provide flexibility for these methods while also retaining all common aspects in the base class. Note that when you design a new DDPG class, you should inherit from CommonDDPG and also must implement this method for the workflow to work.
             
             Parameters:
+
                 obs_tuple : The actual observations from the episode. The usual state,action,reward,done,info tuple generated from the BSAvgState environment.
 
         """
@@ -181,6 +183,7 @@ class DDPG(CommonDDPG.DDPG):
             The learn method called by run_experiment module. This method must be implemented for a  new DDPG class.
             
             Parameters:
+
                 episode:  The episode number of the experiment.
         """
 

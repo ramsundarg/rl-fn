@@ -12,6 +12,7 @@ class A:
         Intializes the actor network. All the variables are very self explanatory in the initialization.
 
         Parameters:
+
             cfg - The config of the experiment. 
         """
         self.m=cfg['ddpg']['a']['variables']['m']
@@ -31,7 +32,9 @@ class A:
             The optimal action finding network. This has to be implemented in any new Actor file. 
 
             Parameters:
+
                 X - The state of the environment. Typically the (wealth,time) tuple in our experiments.
+
                 network - The variable that is either 'actual' or 'target' depending on the network.
         """
         m = self.variables[network][0]
@@ -45,6 +48,7 @@ class A:
             Customizing the update step. If we do not need the DDPG to update the network, and have it done in a non standard way, then this method has to be implemented. This is used in conjunction with the self.update_actor variable which has to be set to False for this function to be called from the DDPG update method.
 
             Parameters:
+            
                 ddpg_agent:  The DDPG agent itself.
         """
         for i in range(len(self.variables['actual'])):

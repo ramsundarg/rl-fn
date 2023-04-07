@@ -40,12 +40,18 @@ class OUActionNoise:
         """
             Initializes the noise process. 
 
-            Parameters
+            Parameters:
+
                 mean - The mean of the noise
+
                 std_deviation  - standard deviation of the noise
+
                 theta - The reverting factor towards the mean
+
                 dt - time step
+
                 x_initial - Intial value of the noise level.
+
         """
         self.theta = theta
         self.mean = mean
@@ -98,12 +104,18 @@ def policy(sampled_actions, noise_object,factor=1,scale=1):
         The policy method adds the noise to the polled actions. The OU process can be one such noise process that can be added to the action value. The policy also dictates how to scale and factor the noise over the course of an experiment.
 
         Parameters:
+
             sampled_actions: The polled actions from the replay buffer.
+
             noise_object: Could be any model. We have implemented an OU process. It should implement the _call__ method.
+
             factor - The factor of the noise level to be added depending on the stage of the experiment. for example we can decay noise over episodes.
+
             scale - This controls the multiplier of the noise level obtained by the noise process. 
 
+
         Returns:
+
             The noise to be mixed to the sampled actions.
 
     """
@@ -128,6 +140,7 @@ def trainer(cfg):
         The runner of the whole algorithm. This method iterates over the episodes and for every step calls the environment to transition to further states and then stores the new transitions into a replay buffer. Finally the DDPG is updated at every iteration and the losses are recorded after every step.
 
         Parameters:
+
             cfg - The configuration of the experiment.
     """
     total_episodes = cfg['general_settings']['max_episodes']
@@ -203,6 +216,7 @@ def run_experiment(cfg):
             The wrapper for the trainer function. This just wraps mlflow utilities for storing the artifacts for the experiment.
 
             Parameter:
+            
                 cfg - The configuration of the experiment
     """
     experiment_name = '{}Type:{} q:{} a:{}'.format( cfg.get('name',''),cfg['env']["U_2"],cfg['ddpg']['q']['name'],cfg['ddpg']['a']['name'])
