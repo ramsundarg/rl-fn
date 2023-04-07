@@ -5,10 +5,27 @@ import numpy as np
 import importlib
 import BSAvgState
 #from ddpg_generic import DDPGAgent
+"""This module is for configuring the replay buffer common functionalities"""
 
 class CommonBuffer:
+    """
+        The common buffer base class has the following methods 1. record 2. get_batch
 
+    """
     def __init__(self,cfg,attr_dict):
+        """
+            This initializes the replay buffer. There is no restriction on what can be stored in a replay buffer.
+
+            Parameters:
+                cfg - This dictionary is the config of the experiment. See config scheme in the usage section of the docs.
+                attr_dict - The parameters the buffer is used to record.
+            
+            Comments:
+
+                Replay buffer is of length cfg['ddpg']['buffer_len'] for every parameter mentioned in attr_dict
+                On every call during the training/update step, replay buffer samples batch_size elements and returns to the training module
+
+        """
         # Number of "experiences" to store at max
         self.cfg = cfg
         self.buffer_capacity = cfg['ddpg']['buffer_len']

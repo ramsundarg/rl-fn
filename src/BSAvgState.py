@@ -6,7 +6,7 @@ import importlib
 import tensorflow as tf
 
 from mlflow import log_metric, log_param, log_artifacts
-
+"""This module is for configuring an environment to be used for portfolio optimization"""
 
 
 class BSAvgState(gym.Env):
