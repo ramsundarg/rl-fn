@@ -2,10 +2,11 @@
 
 import tensorflow as tf
 import numpy as np
-"""
-    A sample actor network. Please see other actor networks defined in the folder for some other flavors of the actor network.
-"""
+
 class A:
+    """
+        A sample actor network. Please see other actor networks defined in the folder for some other flavors of the actor network.
+    """
     def __init__(self,cfg):
         """
         Intializes the actor network. All the variables are very self explanatory in the initialization.

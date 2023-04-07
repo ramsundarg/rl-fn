@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
-"""
-    A sample critic network that works on the actual function and computes the parameters of the function by DDPG. Please see other critic networks defined in the folder for some other flavors of the actor network.
-"""
+
 class Q:
+    """
+    A sample critic network that works on the actual function and computes the parameters of the function by DDPG. Please see other critic networks defined in the folder for some other flavors of the actor network.
+    """
     def __init__(self,cfg):
         
         self.m=cfg['ddpg']['q']['variables']['m']
