@@ -22,11 +22,22 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/") 
 def index(request: Request):
+  """
+    The landing page of the fast API
+  """
   return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post('/handle_data')
 async def handle_data(request: Request):
+    """
+      This method executes when the user clicks the submit button to spawn an experiment with all the list of hyperparameter configurations.
+      A new experiment will be launched and the mlflow page of the experiment will be returned back. Please note that sometimes the returned URL is unstable and that we need to inspect the MLdashboard separately. Also, mlflow ui should be running on the host where the experiment is run.
+
+      Parameters:
+        Request: The fastapi Request that contains the cfg of the experiment.
+
+    """
     form = await request.form()
     try :
         cfg = form['op1']

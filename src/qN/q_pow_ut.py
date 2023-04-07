@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
+"""
+    A sample critic network that works on the actual function and computes the parameters of the function by DDPG. Please see other critic networks defined in the folder for some other flavors of the actor network.
+"""
 class Q:
     def __init__(self,cfg):
         
@@ -18,6 +21,16 @@ class Q:
         
         
     def q_mu(self,arr,network='actual'):
+        """
+            The Q value finding function. This has to be implemented in any new Critic file. 
+
+            Parameters:
+                arr - The state of the environment along with the polled action for that state. Typically the (wealth,time) tuple is the state in our experiments.
+                network - The variable that is either 'actual' or 'target' depending on the network.
+
+            Returns:
+                The actual Q value for the mini-batch
+        """
         t = tf.reshape(np.array(arr[0])[:,0],[-1,1])
         V = tf.reshape(np.array(arr[0])[:,1],[-1,1])
         a = tf.cast(tf.reshape(arr[1],[-1,1]),tf.float32)
@@ -36,7 +49,13 @@ class Q:
         return tf.where(t<T, tf.pow(V, b) / b * val,0) 
 
     def get_all_variables(self):
+        """
+            This function has to be defined for any new Actor network and this should list all the variables in the network , both that can be trained and not. Typically target variables are not trained.
+        """        
         return self.variables['target'],self.variables['actual']
     
     def get_trainable_variables(self):
+        """
+            This function has to be defined for any new Actor network and this should list all the trainable variables in the network Typically 'actual' variables are trained.
+        """        
         return self.variables['actual']

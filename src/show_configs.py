@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Nov 12 11:41:16 2022
+The show configuration mode of the experiment that just prints all relevant configurations a hyper tuning framework of an experiment can yield.
 
-@author: A00006846
 
 """
 import hypertune

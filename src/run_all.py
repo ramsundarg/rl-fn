@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Nov 12 11:41:16 2022
-
-@author: A00006846
+The script to be used by default to run experiments.
 
 """
 import hypertune
