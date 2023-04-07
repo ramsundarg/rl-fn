@@ -20,11 +20,13 @@ class CommonBuffer:
 
             Parameters:
                 cfg - This dictionary is the config of the experiment. See config scheme in the usage section of the docs.
+
                 attr_dict - The parameters the buffer is used to record.
             
             Comments:
 
-                Replay buffer is of length cfg['ddpg']['buffer_len'] for every parameter mentioned in attr_dict
+                Replay buffer is of length cfg['ddpg']['buffer_len'] for every parameter mentioned in attr_dict.
+
                 On every call during the training/update step, replay buffer samples batch_size elements and returns to the training module
 
         """
@@ -64,8 +66,11 @@ class CommonBuffer:
 
             Parameters:
                 attr_list : The list of attributes that need to be sampled
+
                 batch_size: If different from the specification. It is an useful parameter to inject batch size when the size is different from the config (when we need to sample shock returns for example.)
+
                 increase : When the batch size has to be increased in an experiment.
+                
 
         """
         if batch_size == None:
