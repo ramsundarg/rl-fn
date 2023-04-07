@@ -43,6 +43,12 @@ class CommonBuffer:
 
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_dict):
+        """ 
+            Adds an observation to replay buffer. 
+            Parameters:
+                obs_dict : Could be any parameters to be added to buffer. The usual ones are the observationtuple  (s,a,r,s'). Sometimes it could be additional parameters such as shock returns etc.
+                
+        """
         # Set index to zero if buffer_capacity is exceeded,
         # replacing old records
         index = self.buffer_counter % self.buffer_capacity
@@ -51,6 +57,15 @@ class CommonBuffer:
         self.buffer_counter += 1
         
     def get_batch(self,attr_list,batch_size=None,increase = True):
+        """
+            Samples a mini batch from replay buffer.
+
+            Parameters:
+                attr_list : The list of attributes that need to be sampled
+                batch_size: If different from the specification. It is an useful parameter to inject batch size when the size is different from the config (when we need to sample shock returns for example.)
+                increase : When the batch size has to be increased in an experiment.
+
+        """
         if batch_size == None:
             batch_size = self.batch_size
         if self.batch_increase == "linear" and increase and self.buffer_counter > self.batch_size:
