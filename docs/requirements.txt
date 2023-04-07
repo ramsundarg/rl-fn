@@ -1,1 +1,12 @@
 furo==2021.11.16
+tensorflow
+gym
+numpy
+json
+copy
+sys
+mlflow
+yaml
+pandas
+
+
