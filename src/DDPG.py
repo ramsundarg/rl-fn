@@ -6,8 +6,17 @@ Created on Sun Nov 13 10:45:54 2022
 """
 
 
-"""
-The `Buffer` class implements Experience Replay.
+
+import tensorflow as tf
+
+import CommonBuffer
+import CommonDDPG
+#from ddpg_generic import DDPGAgent
+
+class DDPG(CommonDDPG.DDPG):
+    """
+           
+       The `Buffer` class implements Experience Replay.
 ---
 ![Algorithm](https://i.imgur.com/mS6iGyJ.jpg)
 ---
@@ -20,15 +29,9 @@ stable by updating the Target model slowly.
 for the actions taken by the Actor network. We seek to maximize this quantity.
 Hence we update the Actor network so that it produces actions that get
 the maximum predicted value as seen by the Critic, for a given state.
-"""
-
-import tensorflow as tf
-
-import CommonBuffer
-import CommonDDPG
-#from ddpg_generic import DDPGAgent
-
-class DDPG(CommonDDPG.DDPG):
+       
+       
+    """
     def __init__(self,cfg):
         # Number of "experiences" to store at max
         self.cfg = cfg
