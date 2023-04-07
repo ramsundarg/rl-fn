@@ -4,9 +4,10 @@
 .. currentmodule:: CommonDDPG
 
 .. autoclass:: DDPG
+   :members:
 
    
-   .. automethod:: __init__
+
 
    
    .. rubric:: Methods

@@ -4,9 +4,10 @@
 .. currentmodule:: qN.q_log_utparametric
 
 .. autoclass:: Q
+   :members:
 
    
-   .. automethod:: __init__
+
 
    
    .. rubric:: Methods

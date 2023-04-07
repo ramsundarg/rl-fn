@@ -11,10 +11,11 @@ class DDPG:
     """
     def __init__(self,cfg):
         """
-            Initializes a DDPG object. Please look at a sample cfg file to see how you can use the file to initialize settings here.
-            Note that the modules for Q and A should be actual modules defined in qN and aN folders respectively.
-            Parameters:
-                cfg - The config file that is used as input to run experiments.
+        Initializes a DDPG object. Please look at a sample cfg file to see how you can use the file to initialize settings here.
+        Note that the modules for Q and A should be actual modules defined in qN and aN folders respectively.
+        
+        Parameters:
+        cfg - The config file that is used as input to run experiments.
         """
         qN_lib = importlib.import_module(
             'qN.{}'.format(cfg['ddpg']['q']['name']))

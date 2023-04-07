@@ -4,9 +4,10 @@
 .. currentmodule:: BSAvgState
 
 .. autoclass:: BSAvgState
+   :members:
 
    
-   .. automethod:: __init__
+
 
    
    .. rubric:: Methods

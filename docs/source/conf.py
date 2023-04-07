@@ -56,3 +56,7 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+add_function_parentheses = False
+
+toc_object_entries_show_parents = 'all'

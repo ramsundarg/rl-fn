@@ -3,6 +3,7 @@ API
 
 .. autosummary::
    :toctree: generated
+   :recursive:
 
    BSAvgState.BSAvgState
    CommonBuffer.CommonBuffer
@@ -16,3 +17,11 @@ API
    hypertune
    run_experiment
    run_all
+
+.. autoclass:: BSAvgState.BSAvgState
+    :members:
+.. autoclass:: CommonBuffer.CommonBuffer
+    :members:
+    
+    
+    

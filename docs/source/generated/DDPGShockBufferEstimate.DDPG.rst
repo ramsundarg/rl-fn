@@ -4,9 +4,10 @@
 .. currentmodule:: DDPGShockBufferEstimate
 
 .. autoclass:: DDPG
+   :members:
 
    
-   .. automethod:: __init__
+
 
    
    .. rubric:: Methods

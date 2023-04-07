@@ -9,7 +9,9 @@ import BSAvgState
 
 class CommonBuffer:
     """
-        The common buffer base class has the following methods 1. record 2. get_batch
+        The common buffer base class has the following methods 
+        1. record 
+        2. get_batch
 
     """
     def __init__(self,cfg,attr_dict):
@@ -44,9 +46,9 @@ class CommonBuffer:
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_dict):
         """ 
-            Adds an observation to replay buffer. 
-            Parameters:
-                obs_dict : Could be any parameters to be added to buffer. The usual ones are the observationtuple  (s,a,r,s'). Sometimes it could be additional parameters such as shock returns etc.
+           Adds an observation to replay buffer. 
+           Parameters:
+            obs_dict : Could be any parameters to be added to buffer. The usual ones are the observationtuple  (s,a,r,s'). Sometimes it could be additional parameters such as shock returns etc.
                 
         """
         # Set index to zero if buffer_capacity is exceeded,

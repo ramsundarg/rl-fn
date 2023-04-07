@@ -4,9 +4,10 @@
 .. currentmodule:: aN.a_pow_ut1
 
 .. autoclass:: A
+   :members:
 
    
-   .. automethod:: __init__
+
 
    
    .. rubric:: Methods

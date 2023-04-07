@@ -100,9 +100,10 @@ class DDPG(CommonDDPG.DDPG):
     # We compute the loss and update parameters
     def learn(self,episode):
         """
-        The learn method called by run_experiment module. This method must be implemented for a  new DDPG class.
-        Parameters:
-            episode:  The episode number of the experiment.
+            The learn method called by run_experiment module. This method must be implemented for a  new DDPG class.
+            
+            Parameters:
+                episode:  The episode number of the experiment.
         """
         # Get sampling range
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
