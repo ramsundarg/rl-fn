@@ -33,6 +33,9 @@ from statistics import NormalDist
 #from ddpg_generic import DDPGAgent
 
 class DDPG(CommonDDPG.DDPG):
+    """
+        The Estimate version of the DDPG. Please read the thesis document to understand how it works.
+    """
     def __init__(self,cfg):
         # Number of "experiences" to store at max
         self.cfg = cfg
@@ -60,6 +63,12 @@ class DDPG(CommonDDPG.DDPG):
 
     # Takes (s,a,r,s') obervation tuple as input
     def record(self, obs_tuple):
+        """
+        Records an observation from the experiment runner (run_experiment.py). We need to call this method and not the replay buffer's method because we need to translate the tuple to a dictionary we are interested in keeping track and then add additional variables here that can be passed to the replay buffer.
+
+        Parameters:
+            obs_tuple : The actual observations from the episode. The usual state,action,reward,done,info tuple generated from the BSAvgState environment.
+        """
         obs_dict = { 'state' : obs_tuple[0],'action' : obs_tuple[1], 'reward' : obs_tuple[2],'next_state':  obs_tuple[3] }
         self.buffer.record(obs_dict)
 
@@ -71,6 +80,14 @@ class DDPG(CommonDDPG.DDPG):
         self,attr_dict
         
     ):
+        """
+            This is not called by the actual experiement runner in run_experiment.py.  The run_experiment makes a call to 'learn' method of this class instead. The learn method then calls the CommonDDPG.learn method, which in turn calls this update method. This workflow can be improved. But it is left as it is to provide flexibility for these methods while also retaining all common aspects in the base class. Note that when you design a new DDPG class, you should inherit from CommonDDPG and also must implement this method for the workflow to work.
+            
+            Parameters:
+                obs_tuple : The actual observations from the episode. The usual state,action,reward,done,info tuple generated from the BSAvgState environment.
+
+        """
+
         state_batch = attr_dict['state'] 
         action_batch = attr_dict['action']
         reward_batch = attr_dict['reward']
@@ -159,10 +176,14 @@ class DDPG(CommonDDPG.DDPG):
                 self.changeM = True    
                 
 
-    # We compute the loss and update parameters
     def learn(self,episode):
+        """
+            The learn method called by run_experiment module. This method must be implemented for a  new DDPG class.
+            
+            Parameters:
+                episode:  The episode number of the experiment.
+        """
 
-        # Get sampling range
         self.episode = self.episode+1
         attr_dict = self.buffer.get_batch(['state','action','reward','next_state'])
         super().learn(attr_dict)

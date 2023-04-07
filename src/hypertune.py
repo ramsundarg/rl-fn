@@ -15,6 +15,9 @@ threads = []
 run_exp = False
 cfgs =[]
 def hypertune(level, idx, hypertune_items):
+    """
+        This is an internal method. Please do not invoke it.
+    """
     global pidx
     global pitems,config_count,cfg_copy,cfg,cfgs,run_exp
     if idx == len(hypertune_items):
@@ -92,6 +95,9 @@ def hypertune(level, idx, hypertune_items):
                 hypertune(level, idx+1, hypertune_items)
         
 def server_hypertune(cfg_orignal):
+    """
+        This should be called from the flask api server. 
+    """
     global cfg_copy,cfg,cfg_copy,run_exp,cfgs,config_count
     run_exp = True
     cfgs=[]
