@@ -13,7 +13,7 @@ class DDPG:
         """
         Initializes a DDPG object. Please look at a sample cfg file to see how you can use the file to initialize settings here.
         Note that the modules for Q and A should be actual modules defined in qN and aN folders respectively.
-        
+
         Parameters:
         cfg - The config file that is used as input to run experiments.
         """
@@ -39,8 +39,9 @@ class DDPG:
             Updates the target network. Could be Q or A. The rate tau can also be specified. Note that if the network has the attribute update_weight set, then this function is skipped and instead the networks function is called. It is useful if you need any customizations to the target network.
 
             Parameters:
-                N - The network q or a
-                tau - The learning rate for the target network
+               | N - The network q or a.
+ 
+               | tau - The learning rate for the target network.
              
         """
         if hasattr(N,'update_weight'):

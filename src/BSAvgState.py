@@ -23,16 +23,7 @@ class BSAvgState(gym.Env):
     def __init__(self, env):
         """
         The initialization function. Note that 'env' is defined in the cfg file.
-
-
-        Parameters
-         mu (float):         expected risky asset return
-         sigma (float):      risky asset standard deviation
-         r (float):          risk-less rate of return
-         T (float):          investment horizon
-         dt (float):         time-step size
-         V_0 (float, tuple): initial wealth, if tuple (v_d, v_u) V_0 is uniformly drawn from [v_d, v_u]
-         U_2 (callable):     utility function for terminal wealth
+        
 
         Returns 
          None
@@ -79,12 +70,12 @@ class BSAvgState(gym.Env):
         Updates a complete mini batch of (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them.
 
         Parameters:
-            r - riskfree rate
-            mu - <not used currently , as these are implictly included in dP>
-            sigma -  volatility of the risky asset
-            dt - time step
-            action - allocation in the risky asset
-            dP - log shock retruns of the risky asset
+            | *r* - riskfree rate
+            | *mu* - <not used currently , as these are implictly included in dP>
+            | *sigma* -  volatility of the risky asset
+            | *dt* - time step
+            | *action* - allocation in the risky asset
+            | *dP* - log shock retruns of the risky asset
         
         Returns:
             The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
@@ -97,12 +88,12 @@ class BSAvgState(gym.Env):
         Wealth updates for (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them.
 
         Parameters:
-            r - riskfree rate
-            mu - <not used currently , as these are implictly included in dP>
-            sigma -  volatility of the risky asset
-            dt - time step
-            action - allocation in the risky asset
-            dP - log shock retruns of the risky asset
+            | *r* - riskfree rate
+            | *mu* - <not used currently , as these are implictly included in dP>
+            | *sigma* -  volatility of the risky asset
+            | *dt* - time step
+            | *action* - allocation in the risky asset
+            | *dP* - log shock retruns of the risky asset
         
         Returns:
             The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
@@ -116,7 +107,7 @@ class BSAvgState(gym.Env):
                 Generates a random list of log returns to be used for the risky asset.
 
                 Parameters:
-                    count - Number of shock returns needed
+                    | *count* - Number of shock returns needed
 
                 Returns:
                     Count number of Shock returns.
@@ -140,8 +131,8 @@ class BSAvgState(gym.Env):
             Computes the next state without actually entering into the state. It can transition into count number of states for any count >1.
 
             Parameters:
-                (state,action) : The state,action tuple
-                count - The number of new states to compute into
+                | *(state,action)* : The state,action tuple
+                | *count* - The number of new states to compute into
 
             Returns:
                 The tuple (state(next state,next time),reward,isTerminalState,shock returns)            
@@ -167,7 +158,7 @@ class BSAvgState(gym.Env):
         Execute one time step within the environment.
         
             Parameters:
-                action : investment in risky asset
+                *action* : investment in risky asset
             
             Returns:
                 The tuple (state(next state,next time),reward,isTerminalState,shock return involved)            
@@ -192,11 +183,13 @@ class BSAvgState(gym.Env):
         Updates a complete mini batch of (state,action). dP is a vector of log returns, sampled from replay bufffer or could be generated from a distribution (See the Estimate version ). So in effect for each of the allocations in action, it takes all the returns specified in dP and computes a cross product of them. Very similar to the grid update but uses internal variables for the missing input.
 
         Parameters:
-            v - Intial wealth
-            a - action 
-            dP - log shock retruns of the risky asset
+
+            | *v* - Intial wealth
+            | *a* - action 
+            | *dP* - log shock retruns of the risky asset
         
         Returns:
+        
             The updated wealth of each action across all the shock returns. If the size of the actions is n and size of shock returns is m, then the resulting wealth update will be of the dimension m * n
 
         """

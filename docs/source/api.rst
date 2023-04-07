@@ -17,11 +17,13 @@ API
    hypertune
    run_experiment
    run_all
+   run_experiment.OUActionNoise
+   run_experiment.policy
+   run_experiment.trainer
 
-.. autoclass:: BSAvgState.BSAvgState
-    :members:
-.. autoclass:: CommonBuffer.CommonBuffer
-    :members:
+   
+
+
     
     
     
