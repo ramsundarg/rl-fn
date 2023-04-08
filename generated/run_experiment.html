@@ -1,20 +1,19 @@
 
 <!DOCTYPE html>
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>run_experiment &#8212; rl-fn  documentation</title>
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="hypertune" href="hypertune.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -33,38 +32,37 @@
             
   <div class="section" id="module-run_experiment">
 <span id="run-experiment"></span><h1>run_experiment<a class="headerlink" href="#module-run_experiment" title="Permalink to this headline">¶</a></h1>
-<p>Created on Mon Nov 14 09:38:02 2022</p>
-<p>&#64;author: A00006846</p>
+<p>The main runner of the whole algorithm</p>
 <p class="rubric">Functions</p>
-<table class="autosummary longtable docutils align-default">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten_dict</span></code>(d[, sep])</p></td>
-<td><p></p></td>
+<td><p>This is an internal method</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">policy</span></code>(sampled_actions, noise_object[, ...])</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">policy</span></code>(sampled_actions, noise_object[, …])</p></td>
+<td><p>The policy method adds the noise to the polled actions.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_experiment</span></code>(cfg)</p></td>
-<td><p></p></td>
+<td><p>The wrapper for the trainer function.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">trainer</span></code>(cfg)</p></td>
-<td><p></p></td>
+<td><p>The runner of the whole algorithm.</p></td>
 </tr>
 </tbody>
 </table>
 <p class="rubric">Classes</p>
-<table class="autosummary longtable docutils align-default">
+<table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">OUActionNoise</span></code>(mean, std_deviation[, theta, ...])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">OUActionNoise</span></code>(mean, std_deviation[, theta, …])</p></td>
+<td><p>To implement better exploration by the Actor network, we use noisy perturbations, specifically an <strong>Ornstein-Uhlenbeck process</strong> for generating noise, as described in the paper.</p></td>
 </tr>
 </tbody>
 </table>
@@ -87,32 +85,16 @@
 
 
 <h3>Navigation</h3>
-<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="BSAvgState.BSAvgState.html">BSAvgState.BSAvgState</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CommonBuffer.CommonBuffer.html">CommonBuffer.CommonBuffer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="CommonDDPG.DDPG.html">CommonDDPG.DDPG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="DDPGShockBuffer.DDPG.html">DDPGShockBuffer.DDPG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="DDPGShockBufferEstimate.DDPG.html">DDPGShockBufferEstimate.DDPG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="DDPG.DDPG.html">DDPG.DDPG</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qN.q_pow_utparametric.Q.html">qN.q_pow_utparametric.Q</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qN.q_log_utparametric.Q.html">qN.q_log_utparametric.Q</a></li>
-<li class="toctree-l2"><a class="reference internal" href="aN.a_pow_ut1.A.html">aN.a_pow_ut1.A</a></li>
-<li class="toctree-l2"><a class="reference internal" href="hypertune.html">hypertune</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">run_experiment</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="../api.html">API</a><ul>
-      <li>Previous: <a href="hypertune.html" title="previous chapter">hypertune</a></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
@@ -120,7 +102,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -142,7 +124,7 @@
       &copy;2023, Ramsundar Govindarajan.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -4,6 +4,7 @@
 .. currentmodule:: qN.q_pow_utparametric
 
 .. autoclass:: Q
+   :members:
 
    
    .. automethod:: __init__

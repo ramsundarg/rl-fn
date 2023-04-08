@@ -4,6 +4,7 @@
 .. currentmodule:: CommonDDPG
 
 .. autoclass:: DDPG
+   :members:
 
    
    .. automethod:: __init__

@@ -4,6 +4,7 @@
 .. currentmodule:: DDPGShockBuffer
 
 .. autoclass:: DDPG
+   :members:
 
    
    .. automethod:: __init__
